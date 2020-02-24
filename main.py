@@ -1,6 +1,7 @@
-#This is a script made to cut audio from Case Catalyst for use on the Opus 2 Platform.
-#It is written in python but compiled for support use in an EXE.
-#It does require ffmpeg to be installed on machines before use.
+#This is a script made to cut audio from of any format dictated by the person compiling. 
+#It is written in python but can be compiled for use in an exe using autopytoexe.
+#See Readme before operation as you will need to download additional files.
+#It does not require ffmpeg to be installed on machines before use.
 
 import tkinter as tk
 from tkinter import font
@@ -237,7 +238,7 @@ class Window:
         new_filename = self.savelocation + "/" + str(casename) + "_" + str(sitting_year) + str(sitting_month) + str(sitting_day) + "-" + str(epoch_time_hour) + str(epoch_time_minute) + "_" + str(converted_time) + ".wma"
 
     ###COMMAND TO RUN
-        command = ["C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe", "-i", self.filename, "-ss", sttvar, "-to", etvar, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
+        command = ["ffmpeg/bin/ffmpeg", "-i", self.filename, "-ss", sttvar, "-to", etvar, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
         print(" ".join(command))
         self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
         self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
