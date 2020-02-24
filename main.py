@@ -248,7 +248,7 @@ class Window:
         stsgvar = self.start_segment_time.get()
         etvar = self.end_time.get()
         sdvar = self.sitting_date.get()
-        ttcvar = self.timestamp_to_convert.get()
+        #ttcvar = self.timestamp_to_convert.get()
         casename =  self.casename.get()
 
         start_hour, start_minute, start_second = sttvar.split(":")
@@ -274,8 +274,8 @@ class Window:
         target_file_duration = float(self.actual_end_segment) - float(self.actual_start_segment)
 
     ###COMMAND TO RUN
-        command = ["C:\\Program\\ffmpeg\\bin\\ffmpeg.exe", "-i", self.filename, "-ss", self.actual_start_segment, "-to", self.actual_end_segment, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
-        print(" ".join(command))
+        command = ["C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe", "-i", self.filename, "-ss", str(self.actual_start_segment), "-to", str(self.actual_end_segment), "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
+        #print(" ".join(command))
         #self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
         #self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
         #target_file_duration = float(self.end_time_calc) - float(self.start_time_calc)
