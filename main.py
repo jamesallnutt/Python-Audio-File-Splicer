@@ -38,6 +38,9 @@ class Window:
         self.start_time.bind("<Button-1>", self.start_time_click)
         self.start_time.bind("<FocusOut>", self.start_time_out_focus)
 
+        self.start_segment_time.bind("<Button-1>", self.start_segment_click)
+        self.start_segment_time.bind("<FocusOut>", self.start_segment_out_focus)
+
         self.end_time.bind("<Button-1>", self.end_time_click)
         self.end_time.bind("<FocusOut>", self.end_time_out_focus)
 
@@ -57,6 +60,14 @@ class Window:
     def start_time_out_focus(self, event):
         if self.start_time.get() == "":
             self.start_time.insert(0, 'HH:MM:SS')
+    
+    def start_segment_click(self, event):
+        if self.start_segment_time.get() == "HH:MM:SS":
+            self.start_segment_time.delete(0, "end")
+
+    def start_segment_out_focus(self, event):
+        if self.start_segment_time.get() == "":
+            self.start_segment_time.insert(0, 'HH:MM:SS')
 
     def end_time_click(self, event):
         if self.end_time.get() == "HH:MM:SS":
@@ -119,16 +130,19 @@ class Window:
         browsebutton = tk.Button(self.filedrop, text="Browse", command=self.click_browse)
         browsebutton.grid(row=1, column=2, sticky='nswe')
 
-        start_label = tk.Label(self.splice_input, text="Start Time", bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
-        start_label.grid(row=1, column=1, sticky='nw')
+        start_time_label = tk.Label(self.splice_input, text="Start Time", bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
+        start_time_label.grid(row=1, column=1, sticky='nw')
 
-        end_label = tk.Label(self.splice_input, text="End Time", bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
-        end_label.grid(row=2, column=1)
+        start_segment_label = tk.Label(self.splice_input, text="Beginning of Segment", bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
+        start_segment_label.grid(row=2, column=1)
+
+        end_label = tk.Label(self.splice_input, text="End of Segment", bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
+        end_label.grid(row=3, column=1)
 
         date_label = tk.Label(self.date_input, text='Sitting Date', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
         date_label.grid(row=1, column=1)
 
-        time_label = tk.Label(self.time_input, text='Timestamp', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
+        time_label = tk.Label(self.time_input, text='First Timestamp of Segment', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
         time_label.grid(row=1, column=1)
 
         casename_label = tk.Label(self.time_input, text='Casename', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
@@ -138,8 +152,12 @@ class Window:
         self.start_time.grid(row=1, column=2)
         self.start_time.insert(0, 'HH:MM:SS')
 
+        self.start_segment_time = tk.Entry(self.splice_input, selectbackground='#0BB5C4', justify='left', font=('Lato'), relief="flat", width=35)
+        self.start_segment_time.grid(row=2, column=2)
+        self.start_segment_time.insert(0, 'HH:MM:SS')
+
         self.end_time = tk.Entry(self.splice_input, selectbackground='#0BB5C4', justify='left', font=('Lato'), relief="flat", width=35)
-        self.end_time.grid(row=2, column=2)
+        self.end_time.grid(row=3, column=2)
         self.end_time.insert(0, 'HH:MM:SS')
 
         self.sitting_date = tk.Entry(self.date_input, selectbackground='#0BB5C4', justify='left', font=('Lato'), relief="flat", width=35)
@@ -187,6 +205,9 @@ class Window:
         stvar = "HH:MM:SS"
         self.start_time.delete(0, 'end')
         self.start_time.insert(0, 'HH:MM:SS')
+        stsgvar = "HH:MM:SS"
+        self.start_segment_time.delete(0, 'end')
+        self.start_segment_time.insert(0, 'HH:MM:SS')
         progress.config(value=0)
 
     def click_reset_all(self, *event):
@@ -206,6 +227,9 @@ class Window:
         self.casename.delete(0, 'end')
         self.casename.insert(0,'Casename with Underscores')
         self.audio_entry.configure(text='Load New File')
+        stsgvar = "HH:MM:SS"
+        self.start_segment_time.delete(0, 'end')
+        self.start_segment_time.insert(0, 'HH:MM:SS')
         progress.config(value=0)
 
 #Grab Original File:
@@ -221,12 +245,14 @@ class Window:
         global progress
     ###Splitting out User Inputs of Timestamps:
         sttvar = self.start_time.get()
+        stsgvar = self.start_segment_time.get()
         etvar = self.end_time.get()
         sdvar = self.sitting_date.get()
         ttcvar = self.timestamp_to_convert.get()
         casename =  self.casename.get()
 
         start_hour, start_minute, start_second = sttvar.split(":")
+        start_seg_hour, start_seg_minute, start_seg_second = stsgvar(":")
         end_hour, end_minute, end_second = etvar.split(":")
         sitting_day, sitting_month, sitting_year = sdvar.split("-")
         epoch_time_hour, epoch_time_minute, epoch_time_second = ttcvar.split(":")
@@ -236,6 +262,13 @@ class Window:
         epoch_time = int(time.mktime(time.strptime(date_time, pattern)))
         converted_time = hex(epoch_time)
         new_filename = self.savelocation + "/" + str(casename) + "_" + str(sitting_year) + str(sitting_month) + str(sitting_day) + "-" + str(epoch_time_hour) + str(epoch_time_minute) + "_" + str(converted_time) + ".wma"
+
+    ###WORK OUT TIME
+        self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
+        self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
+        self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
+
+        
 
     ###COMMAND TO RUN
         command = ["ffmpeg/bin/ffmpeg", "-i", self.filename, "-ss", sttvar, "-to", etvar, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
@@ -256,6 +289,7 @@ if __name__ == "__main__":
     ttcvar = " "
     etvar = " "
     sttvar = " "
+    stsgvar = " "
     casename = " "
     epoch_time = 0
     converted_time = 0
