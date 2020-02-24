@@ -47,8 +47,8 @@ class Window:
         self.sitting_date.bind("<Button-1>", self.date_click)
         self.sitting_date.bind("<FocusOut>", self.date_out_focus)
 
-        self.timestamp_to_convert.bind("<Button-1>", self.timestamp_click)
-        self.timestamp_to_convert.bind("<FocusOut>", self.timestamp_out_focus)
+        #self.timestamp_to_convert.bind("<Button-1>", self.timestamp_click)
+        #self.timestamp_to_convert.bind("<FocusOut>", self.timestamp_out_focus)
 
         self.casename.bind("<Button-1>", self.casename_click)
         self.casename.bind("<FocusOut>", self.casename_out_focus)
@@ -85,13 +85,13 @@ class Window:
         if self.sitting_date.get() == "":
             self.sitting_date.insert(0, 'DD-MM-YYYY')
 
-    def timestamp_click(self, event):
-        if self.timestamp_to_convert.get() == "HH:MM:SS":
-            self.timestamp_to_convert.delete(0, "end")
+    #def timestamp_click(self, event):
+        #if self.timestamp_to_convert.get() == "HH:MM:SS":
+            #self.timestamp_to_convert.delete(0, "end")
 
-    def timestamp_out_focus(self, event):
-        if self.timestamp_to_convert.get() == "":
-            self.timestamp_to_convert.insert(0, 'HH:MM:SS')
+    #def timestamp_out_focus(self, event):
+        #if self.timestamp_to_convert.get() == "":
+            #self.timestamp_to_convert.insert(0, 'HH:MM:SS')
 
     def casename_click(self, event):
         if self.casename.get() == "Casename with Underscores":
@@ -142,8 +142,8 @@ class Window:
         date_label = tk.Label(self.date_input, text='Sitting Date', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
         date_label.grid(row=1, column=1)
 
-        time_label = tk.Label(self.time_input, text='First Timestamp of Segment', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
-        time_label.grid(row=1, column=1)
+        #time_label = tk.Label(self.time_input, text='First Timestamp of Segment', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
+        #time_label.grid(row=1, column=1)
 
         casename_label = tk.Label(self.time_input, text='Casename', bd=0, highlightthickness=0, relief='flat', bg='#F3F4F5', fg="#551A55", width=25)
         casename_label.grid(row=2, column=1)
@@ -164,9 +164,9 @@ class Window:
         self.sitting_date.grid(row=1, column=2)
         self.sitting_date.insert(0, 'DD-MM-YYYY')
 
-        self.timestamp_to_convert = tk.Entry(self.time_input, selectbackground='#0BB5C4', justify='left', font=('Lato'), relief="flat", width=35)
-        self.timestamp_to_convert.grid(row=1, column=2)
-        self.timestamp_to_convert.insert(0, 'HH:MM:SS')
+        #self.timestamp_to_convert = tk.Entry(self.time_input, selectbackground='#0BB5C4', justify='left', font=('Lato'), relief="flat", width=35)
+        #self.timestamp_to_convert.grid(row=1, column=2)
+        #self.timestamp_to_convert.insert(0, 'HH:MM:SS')
 
         self.casename = tk.Entry(self.time_input, selectbackground='#0BB5C4', justify='left', font=('Lato'), relief="flat", width=35)
         self.casename.grid(row=2, column=2)
@@ -196,9 +196,9 @@ class Window:
 
 #Reset Commands:
     def click_reset(self, *event):
-        ttcvar = "HH:MM:SS"
-        self.timestamp_to_convert.delete(0, 'end')
-        self.timestamp_to_convert.insert(0, 'HH:MM:SS')
+        #ttcvar = "HH:MM:SS"
+        #self.timestamp_to_convert.delete(0, 'end')
+        #self.timestamp_to_convert.insert(0, 'HH:MM:SS')
         etvar = "HH:MM:SS"
         self.end_time.delete(0, 'end')
         self.end_time.insert(0, 'HH:MM:SS')
@@ -211,9 +211,9 @@ class Window:
         progress.config(value=0)
 
     def click_reset_all(self, *event):
-        ttcvar = "HH:MM:SS"
-        self.timestamp_to_convert.delete(0, 'end')
-        self.timestamp_to_convert.insert(0, 'HH:MM:SS')
+        #ttcvar = "HH:MM:SS"
+        #self.timestamp_to_convert.insert(0, 'HH:MM:SS')
+        #self.timestamp_to_convert.delete(0, 'end')
         etvar = "HH:MM:SS"
         self.end_time.delete(0, 'end')
         self.end_time.insert(0, 'HH:MM:SS')
@@ -274,7 +274,7 @@ class Window:
         target_file_duration = float(self.actual_end_segment) - float(self.actual_start_segment)
 
     ###COMMAND TO RUN
-        command = ["ffmpeg/bin/ffmpeg.exe", "-i", self.filename, "-ss", self.actual_start_segment, "-to", self.actual_end_segment, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
+        command = ["C:\\Program\\ffmpeg\\bin\\ffmpeg.exe", "-i", self.filename, "-ss", self.actual_start_segment, "-to", self.actual_end_segment, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
         print(" ".join(command))
         #self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
         #self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
