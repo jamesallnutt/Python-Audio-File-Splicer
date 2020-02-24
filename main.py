@@ -252,12 +252,12 @@ class Window:
         casename =  self.casename.get()
 
         start_hour, start_minute, start_second = sttvar.split(":")
-        start_seg_hour, start_seg_minute, start_seg_second = stsgvar(":")
+        start_seg_hour, start_seg_minute, start_seg_second = stsgvar.split(":")
         end_hour, end_minute, end_second = etvar.split(":")
         sitting_day, sitting_month, sitting_year = sdvar.split("-")
-        epoch_time_hour, epoch_time_minute, epoch_time_second = ttcvar.split(":")
+        epoch_time_hour, epoch_time_minute, epoch_time_second = stsgvar.split(":")
     ###NEW FILENAME
-        date_time = sdvar + " " + ttcvar
+        date_time = sdvar + " " + stsgvar
         pattern = "%d-%m-%Y %H:%M:%S"
         epoch_time = int(time.mktime(time.strptime(date_time, pattern)))
         converted_time = hex(epoch_time)
@@ -268,14 +268,17 @@ class Window:
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
         self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
 
-        
+        self.actual_start_segment = float(self.start_segment_time_calc) - float(self.start_time_calc)
+        self.actual_end_segment = float(self.end_time_calc) - float(self.start_time_calc)
+
+        target_file_duration = float(self.actual_end_segment) - float(self.actual_start_segment)
 
     ###COMMAND TO RUN
-        command = ["ffmpeg/bin/ffmpeg", "-i", self.filename, "-ss", sttvar, "-to", etvar, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
+        command = ["ffmpeg/bin/ffmpeg.exe", "-i", self.filename, "-ss", self.actual_start_segment, "-to", self.actual_end_segment, "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
         print(" ".join(command))
-        self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
-        self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
-        target_file_duration = float(self.end_time_calc) - float(self.start_time_calc)
+        #self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
+        #self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
+        #target_file_duration = float(self.end_time_calc) - float(self.start_time_calc)
 
         def fun(percentage):
             # pass
