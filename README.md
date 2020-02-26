@@ -10,3 +10,6 @@ FFMPEG Can be downloaded here: https://www.ffmpeg.org/download.html
 The File ffmpeg.exe should then be inserted at ~/ffmpeg/bin/ffmpeg.exe
 
 See main.py if you would like to edit the save location of the above. 
+
+
+Icons made by <a href="https://www.flaticon.com/authors/roundicons" title="Roundicons">Roundicons</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>

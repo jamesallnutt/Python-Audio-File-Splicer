@@ -16,13 +16,13 @@ from threading import Thread
 from queue import Queue, Empty
 from subprocess import Popen, PIPE, run
 from functools import reduce
-from test import du_stuff
+from progress_bar import du_stuff
 
 class Window:
     def __init__(self, main_window):
         self.main_window = main_window
         self.customFont = font.Font(family="Lato", size=12)
-        self.main_window.title("WAV Audio Chopping")
+        self.main_window.title("PyChop - Audio Editor")
         self.main_window.configure(background='#F3F4F5')
         self.main_window.iconbitmap(r'gui_element_graphics\app_icon.ico')
         #self.main_window.maxsize(612,240)
@@ -31,6 +31,7 @@ class Window:
         self.make_buttons()
         self.make_entries()
         self.setup_keys()
+        self.audio_player()
 
 
 #hide textbox blanks
@@ -85,14 +86,6 @@ class Window:
         if self.sitting_date.get() == "":
             self.sitting_date.insert(0, 'DD-MM-YYYY')
 
-    #def timestamp_click(self, event):
-        #if self.timestamp_to_convert.get() == "HH:MM:SS":
-            #self.timestamp_to_convert.delete(0, "end")
-
-    #def timestamp_out_focus(self, event):
-        #if self.timestamp_to_convert.get() == "":
-            #self.timestamp_to_convert.insert(0, 'HH:MM:SS')
-
     def casename_click(self, event):
         if self.casename.get() == "Casename with Underscores":
             self.casename.delete(0, "end")
@@ -107,19 +100,19 @@ class Window:
         self.filedrop.grid(row=1, column=1, pady=10, padx=10)
 
         self.splice_input = tk.Frame(self.main_window)
-        self.splice_input.grid(row=2, column=1, padx=5)
+        self.splice_input.grid(row=3, column=1, padx=5)
 
         self.date_input = tk.Frame(self.main_window)
-        self.date_input.grid(row=3, column=1, padx=5)
+        self.date_input.grid(row=4, column=1, padx=5)
 
         self.time_input = tk.Frame(self.main_window)
-        self.time_input.grid(row=4, column=1, padx=5)
+        self.time_input.grid(row=5, column=1, padx=5)
 
         self.buttons_location = tk.Frame(self.main_window)
-        self.buttons_location.grid(row=5, column=1, pady=10)
+        self.buttons_location.grid(row=6, column=1, pady=10)
 
         self.progress_bar_frame = tk.Frame(self.main_window)
-        self.progress_bar_frame.grid(row=6, column=1, padx=10)
+        self.progress_bar_frame.grid(row=7, column=1, padx=10)
 
 
 #entries layouts
@@ -173,7 +166,6 @@ class Window:
         self.casename.insert(0, 'Casename with Underscores')
 
 #write layouts
-
     def progress_bar(self):
         progress_bar = ttk.ProgressBar(self.progress_bar_frame, mode='determinate', orient=HORIZONTAL, length=100)
         progressBar.progress_bar_thread()
@@ -232,11 +224,10 @@ class Window:
         self.start_segment_time.insert(0, 'HH:MM:SS')
         progress.config(value=0)
 
-#Grab Original File:
+    #Grab Original File:
     def click_browse(self, *event):
         self.filename = filedialog.askopenfilename(title = "Select WAV/WMA/MPEG/MP4 file",filetypes = (("WAV Files","*.wav"),("WMA files","*.wma"),("MPEG files","*.mpeg"),("MP4 files","*.mp4"),("all files","*.*")))
         self.audio_entry.configure(text=self.filename)
-
 
     def click_save_location(self, *event):
         self.savelocation = filedialog.askdirectory(title = "Save Location")
@@ -262,7 +253,6 @@ class Window:
         epoch_time = int(time.mktime(time.strptime(date_time, pattern)))
         converted_time = hex(epoch_time)
         new_filename = self.savelocation + "/" + str(casename) + "_" + str(sitting_year) + str(sitting_month) + str(sitting_day) + "-" + str(epoch_time_hour) + str(epoch_time_minute) + "_" + str(converted_time) + ".wma"
-
     ###WORK OUT TIME
         self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
@@ -272,18 +262,35 @@ class Window:
         self.actual_end_segment = float(self.end_time_calc) - float(self.start_time_calc)
 
         target_file_duration = float(self.actual_end_segment) - float(self.actual_start_segment)
-
     ###COMMAND TO RUN
         command = ["C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe", "-i", self.filename, "-ss", str(self.actual_start_segment), "-to", str(self.actual_end_segment), "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
-        #print(" ".join(command))
-        #self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
-        #self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
-        #target_file_duration = float(self.end_time_calc) - float(self.start_time_calc)
-
+        
         def fun(percentage):
             # pass
             print(percentage * 100)
         Thread(target=lambda: du_stuff(command, target_file_duration, lambda x: progress.config(value=x*100))).start()
+
+    def audio_player(self):
+        audio_frame = tk.Frame(self.main_window, width=300, bg='#F3F4F5')
+        audio_frame.grid(row=2, column=0, columnspan=4, ipady=5)
+
+        self.play_icon = PhotoImage(file = r"gui_element_graphics/play.png")
+        self.play_icon = self.play_icon.subsample(40,40)
+        self.pause_icon = PhotoImage(file = r"gui_element_graphics/pause.png")
+        self.pause_icon = self.pause_icon.subsample(40,40)
+        self.rewind_icon = PhotoImage(file = r"gui_element_graphics/rewind.png")
+        self.rewind_icon = self.rewind_icon.subsample(40,40)
+        self.forward_icon = PhotoImage(file = r"gui_element_graphics/fast-forward.png")
+        self.forward_icon = self.forward_icon.subsample(40,40)
+
+        audio_beginning = tk.Button(audio_frame, image=self.rewind_icon, width=50)
+        audio_beginning.grid(row=2, column=1)
+        audio_play = tk.Button(audio_frame, image=self.play_icon, width=50)
+        audio_play.grid(row=2, column=2, sticky='nswe')
+        audio_pause = tk.Button(audio_frame, image=self.pause_icon, width=50)
+        audio_pause.grid(row=2, column=3, sticky='nswe')
+        audio_end_minus_ten = tk.Button(audio_frame, image=self.forward_icon, width=50)
+        audio_end_minus_ten.grid(row=2, column=4, sticky='nswe')
 
 
 if __name__ == "__main__":
