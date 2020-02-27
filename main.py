@@ -31,10 +31,9 @@ class Window:
     def __init__(self, main_window):
         #Loading the Main window with set preferences, such as Font, App Icon and Title
         self.main_window = main_window
-        self.customFont = font.Font(family="Lato", size=12) #App Font
         self.main_window.title("PyChop - Audio Editor") #App Title - In OS System Bar
-        self.main_window.configure(background='#F3F4F5') #App Background Colour
-        self.main_window.iconbitmap(r'gui_element_graphics\app_icon.ico') #App Favicon
+        #self.main_window.configure(background='#625772') #App Background Colour
+        self.main_window.iconbitmap(r'gui_element_graphics/favicon.ico') #App Favicon
 
         #Loading the below functions on boot of the App - buttons, frames etc.
         self.make_frames()
