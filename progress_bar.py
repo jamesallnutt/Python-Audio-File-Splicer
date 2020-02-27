@@ -1,9 +1,12 @@
+##The functions within this file all are reading the output of the subprocess command run in main.py for FFMPEG. 
+##We are extracting data to calculate information such as - end file size, current file size, the closer they are, the higher percentage completed etc
+##This was produced with help from github contributor Kokadva - he can hopefully add some comments explaining each section!
+
 import subprocess
 from functools import reduce
 
 def extract_raw_timecode(chunk):
     return chunk[chunk.index(b'time='):chunk.index(b' bitrate')]
-
 
 def to_seconds(timecode):
     x = 60
@@ -15,8 +18,6 @@ def to_seconds(timecode):
     l = list(reversed(list(map(float, timecode[timecode.index(b'=') + 1:].split(b':')))))
     return reduce(lambda a, b: func(b) + a, l)
 
-
-
 # Function to execute once new progress log is found
 def on_new_log(new_progress, target_file_length, on_percentage_callback_func):
     timecode = extract_raw_timecode(new_progress)
@@ -24,7 +25,6 @@ def on_new_log(new_progress, target_file_length, on_percentage_callback_func):
     # print(seconds, target_file_length)
     on_percentage_callback_func(seconds / target_file_length)
     # print((str(seconds / target_file_length * 100))[:5] + '%')
-
 
 def skip_prefix(p):
     prefix = b''
@@ -34,15 +34,12 @@ def skip_prefix(p):
         if b'size=' in prefix:
             return prefix[prefix.index(b'size='):]
 
-
 def contains_new_progress(_bytes):
     return _bytes.count(b'size=') > 1
-
 
 def extract_progress(_bytes):
     return _bytes[_bytes.index(b'size='):_bytes.index(b'size=', _bytes.index(b'size=') + 1)], \
            _bytes[_bytes.index(b'size=', _bytes.index(b'size=') + 1):]
-
 
 def extract_last_progress(_bytes):
     return _bytes[_bytes.index(b'size='):]
