@@ -74,7 +74,7 @@ class Audio_Manager:
         self.search.insert(0, "Search")
 
         self.current_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
-        current_header = tk.Label(self.save_management, image=self.current_header_bg, text="Current Project", fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
+        current_header = tk.Label(self.save_management, image=self.current_header_bg, text="Current Project", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
         current_header.grid(row=3, column=1, padx=(5,0), sticky=W)
 
         past_header = tk.Label(self.save_management, text="Past Projects", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
@@ -156,7 +156,9 @@ class Audio_Manager:
         self.current_audio_project.grid(row=0, column=2)
         self.current_audio_project.grid_propagate(False)
 
-        current_header = tk.Label(self.current_audio_project, text="Current Project", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
+
+        self.current_header_backg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
+        current_header = tk.Label(self.current_audio_project, image=self.current_header_backg, compound=CENTER, text="Current Project", bg='#FFFFFF', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
         current_header.grid(row=1, column=1, padx=(5,0), sticky=W, pady=(15,0))
 
         browse = tk.Label(self.current_audio_project, text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
