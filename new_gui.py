@@ -49,7 +49,7 @@ class Audio_Manager:
 
         self.github_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/github_logo.png')
         github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=31)
-        github_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+        github_button.configure(fg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         github_button.grid(row=3, column=1, padx=13, pady=(4,7))
 
         self.help_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/help_logo.png')
@@ -73,7 +73,8 @@ class Audio_Manager:
         self.search.grid(row=2, column=1, columnspan=2, padx=(5,0), pady=(5), sticky=W)
         self.search.insert(0, "Search")
 
-        current_header = tk.Label(self.save_management, text="Current Project", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
+        self.current_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
+        current_header = tk.Label(self.save_management, image=self.current_header_bg, text="Current Project", fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
         current_header.grid(row=3, column=1, padx=(5,0), sticky=W)
 
         past_header = tk.Label(self.save_management, text="Past Projects", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
