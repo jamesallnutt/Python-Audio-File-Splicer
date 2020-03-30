@@ -1,6 +1,6 @@
 ##The functions within this file all are reading the output of the subprocess command run in main.py for FFMPEG. 
 ##We are extracting data to calculate information such as - end file size, current file size, the closer they are, the higher percentage completed etc
-##This was produced with help from github contributor Kokadva - he can hopefully add some comments explaining each section!
+##This was produced with help from github contributor Kokadva
 
 import subprocess
 from functools import reduce

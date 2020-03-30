@@ -32,7 +32,6 @@ class Window:
         #Loading the Main window with set preferences, such as Font, App Icon and Title
         self.main_window = main_window
         self.main_window.title("PyChop - Audio Editor") #App Title - In OS System Bar
-        #self.main_window.configure(background='#625772') #App Background Colour
         self.main_window.iconbitmap(r'gui_element_graphics/favicon.ico') #App Favicon
 
         #Loading the below functions on boot of the App - buttons, frames etc.
@@ -337,4 +336,3 @@ if __name__ == "__main__":
     root.mainloop()
 
 
-    #canvas = tk.Canvas(root, width=275, height=65, bd=0, highlightthickness=0, background='#F3F4F5')
