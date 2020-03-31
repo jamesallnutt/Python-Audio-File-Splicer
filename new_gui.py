@@ -65,8 +65,9 @@ class Audio_Manager:
         header = tk.Label(self.save_management, text="Audio Projects", bg='#F6F6F6', fg='#69686D', font=('Helvetica', 12, 'bold'))
         header.grid(row=1, column=1, padx=(5,0), pady=(15,0))
 
-        new_project = tk.Button(self.save_management, text="X")
-        new_project.configure(bg='#F6F6F6', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+        self.plus_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
+        new_project = tk.Button(self.save_management, image=self.plus_button)
+        new_project.configure(bg='#F6F6F6', fg='#F6F6F6', height=15, width=15, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         new_project.grid(row=1, column=2, padx=(80,0), pady=(15,0))
 
         self.search = tk.Entry(self.save_management)
@@ -75,10 +76,11 @@ class Audio_Manager:
 
         self.current_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
         current_header = tk.Label(self.save_management, image=self.current_header_bg, text="Current Project", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
-        current_header.grid(row=3, column=1, padx=(5,0), sticky=W)
+        current_header.grid(row=3, column=1, sticky=W)
 
-        past_header = tk.Label(self.save_management, text="Past Projects", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
-        past_header.grid(row=5, column=1, padx=(5,0), sticky=W)
+        self.past_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Past_Project.png')
+        past_header = tk.Label(self.save_management, image=self.past_header_bg, text="Past Projects", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
+        past_header.grid(row=5, column=1, sticky=W)
 
     def project_management_current(self):
 
@@ -88,7 +90,7 @@ class Audio_Manager:
 
         current_project_title = tk.Label(self.save_current_project_info, text="Filename:", fg='#69686D')
         current_project_title.grid(row=1, column=0, sticky=W)
-        current_project_title_entry = tk.Label(self.save_current_project_info, text="Example Name")
+        current_project_title_entry = tk.Label(self.save_current_project_info, text="Example Name", width=10)
         current_project_title_entry.grid(row=1, column=1, sticky=W)
 
         current_project_date = tk.Label(self.save_current_project_info, text='Date:', fg='#69686D')
@@ -159,61 +161,68 @@ class Audio_Manager:
 
         self.current_header_backg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
         current_header = tk.Label(self.current_audio_project, image=self.current_header_backg, compound=CENTER, text="Current Project", bg='#FFFFFF', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
-        current_header.grid(row=1, column=1, padx=(5,0), sticky=W, pady=(15,0))
+        current_header.grid(row=1, column=1, sticky=W, padx=(5,0), pady=(15,0))
 
         browse = tk.Label(self.current_audio_project, text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
-        browse.grid(row=2, column=1, padx=(5,0), sticky=W)
+        browse.grid(row=2, column=1, padx=(10,0), sticky=W)
 
         metadata = tk.Label(self.current_audio_project, text="Metadata (Optional)", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
-        metadata.grid(row=4, column=1, padx=(5,0), sticky=W)
+        metadata.grid(row=4, column=1, padx=(10,0), sticky=W)
 
         editing_header = tk.Label(self.current_audio_project, text="Export Options", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
-        editing_header.grid(row=6, column=1, padx=(5,0), sticky=W)
+        editing_header.grid(row=6, column=1, padx=(10,0), sticky=W)
 
     def current_project_tools(self):
-        current_file_path = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here")
-        current_file_path.grid(row=3, column=1, sticky=W, padx=(5,0))
+        current_file_path = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here", width=40)
+        current_file_path.grid(row=3, column=1, columnspan=2, sticky=W, padx=(10,0))
         current_file_path.grid_propagate(True)
-        current_file_button = tk.Button(self.current_audio_project)
-        current_file_button.grid(row=3, column=2)
 
-        metadata_file = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here")
-        metadata_file.grid(row=5, column=1, sticky=W, padx=(5,0))
-        metadata_file_button = tk.Button(self.current_audio_project)
-        metadata_file_button.grid(row=5, column=2)
+        self.current_file_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
+        current_file_button = tk.Button(self.current_audio_project, image=self.current_file_button, width=15, command=self.click_browse)
+        current_file_button.grid(row=3, column=3)
+
+        metadata_file = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here", width=40)
+        metadata_file.grid(row=5, column=1, columnspan=2, sticky=W, padx=(10,0))
+
+        self.metadata_file_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
+        metadata_file_button = tk.Button(self.current_audio_project, image=self.current_file_button, width=15)
+        metadata_file_button.grid(row=5, column=3)
 
         self.recording_date = tk.Entry(self.current_audio_project)
-        self.recording_date.grid(row=7, column=1, padx=(5,0), sticky=W)
+        self.recording_date.grid(row=7, column=1, padx=(10,0), sticky=W)
         self.recording_date.insert(0, "Recording Date")
 
         self.recording_start_time = tk.Entry(self.current_audio_project)
-        self.recording_start_time.grid(row=8, column=1, padx=(5,0), sticky=W)
+        self.recording_start_time.grid(row=8, column=1, padx=(10,0), sticky=W)
         self.recording_start_time.insert(0, "Recording Start Time")
 
         self.recording_start_bound = tk.Entry(self.current_audio_project)
-        self.recording_start_bound.grid(row=9, column=1, padx=(5,0), sticky=W)
+        self.recording_start_bound.grid(row=9, column=1, padx=(10,0), sticky=W)
         self.recording_start_bound.insert(0, "Start Time Boundary")
 
-        recording_start_bound_play = tk.Button(self.current_audio_project)
-        recording_start_bound_play.grid(row=9, column=2)
+        self.play_start = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
+        recording_start_bound_play = tk.Button(self.current_audio_project, image=self.play_start, height=15, width=15)
+        recording_start_bound_play.grid(row=9, column=2, sticky=W, padx=(0,150))
 
         self.recording_end_bound = tk.Entry(self.current_audio_project)
-        self.recording_end_bound.grid(row=10, column=1, padx=(5,0), sticky=W)
+        self.recording_end_bound.grid(row=10, column=1, padx=(10,0), sticky=W)
         self.recording_end_bound.insert(0, "End Time Boundary")
 
-        recording_end_bound_play = tk.Button(self.current_audio_project)
-        recording_end_bound_play.grid(row=10, column=2)
+        self.play_end = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
+        recording_end_bound_play = tk.Button(self.current_audio_project, image=self.play_end, height=15, width=15)
+        recording_end_bound_play.grid(row=10, column=2, sticky=W, padx=(0,150))
 
         self.recording_file_prefix = tk.Entry(self.current_audio_project)
-        self.recording_file_prefix.grid(row=11, column=1, padx=(5,0), sticky=W)
+        self.recording_file_prefix.grid(row=11, column=1, padx=(10,0), sticky=W)
         self.recording_file_prefix.insert(0, "Filename Prefix")
 
         progress = ttk.Progressbar(self.current_audio_project, orient = HORIZONTAL, length = 20)
-        progress.grid(row=12, column=1, sticky='nswe', padx=(5,0), pady=10)
+        progress.grid(row=12, column=1, columnspan=2, sticky='nswe', padx=(10,0), pady=10)
         progress.config(mode='determinate', maximum=99.99, value=0)
 
-        export = tk.Button(self.current_audio_project)
-        export.grid(row=12, column=2)
+        self.export_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/export.png')
+        export = tk.Button(self.current_audio_project, image=self.export_button)
+        export.grid(row=12, column=3)
 
 ##Key Binds
 
@@ -284,6 +293,10 @@ class Audio_Manager:
         if self.recording_file_prefix.get() == "":
             self.recording_file_prefix.insert(0, "Filename Prefix")
 
+def click_browse(self, *event): #Location file to load for segmenting
+    global filename #Making this global as I use it later in click_play_start/end
+    filename = filedialog.askopenfilename(title = "Select WAV/WMA/MPEG/MP4 file",filetypes = (("WAV Files","*.wav"),("WMA files","*.wma"),("MPEG files","*.mpeg"),("MP4 files","*.mp4"),("all files","*.*"))) #Using filedialogue module, dictating which file types can be inputted - can change this to your preference if you want to limit
+    self.current_file_path.configure(text=filename) #updating audio entry field to display filepath - might change this just to show filename
 
 if __name__ == "__main__":
     root = tk.Tk()
