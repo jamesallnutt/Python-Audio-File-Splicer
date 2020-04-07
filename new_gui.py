@@ -11,7 +11,10 @@ import os
 import sys
 import time
 import subprocess
+import webbrowser
 
+from progress_bar import progress_bar_percent #progress_bar_percent is the name of our load bar progress percentage on GUI
+from audio_controls import play_beginning, play_end #these are the subprocess calls for ffplay to run playback
 
 class Audio_Manager:
     def __init__(self, audio_window):
@@ -43,12 +46,12 @@ class Audio_Manager:
         app_logo.grid(row=1, column=1, padx=13, pady=5)
 
         self.twitter_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/twitter_logo.png')
-        twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31)
+        twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
         twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         twitter_button.grid(row=2, column=1, padx=13, pady=(245,0))
 
         self.github_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/github_logo.png')
-        github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=31)
+        github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=30, command=self.open_github)
         github_button.configure(fg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         github_button.grid(row=3, column=1, padx=13, pady=(4,7))
 
@@ -158,7 +161,6 @@ class Audio_Manager:
         self.current_audio_project.grid(row=0, column=2)
         self.current_audio_project.grid_propagate(False)
 
-
         self.current_header_backg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
         current_header = tk.Label(self.current_audio_project, image=self.current_header_backg, compound=CENTER, text="Current Project", bg='#FFFFFF', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
         current_header.grid(row=1, column=1, sticky=W, padx=(5,0), pady=(15,0))
@@ -173,19 +175,21 @@ class Audio_Manager:
         editing_header.grid(row=6, column=1, padx=(10,0), sticky=W)
 
     def current_project_tools(self):
-        current_file_path = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here", width=40)
-        current_file_path.grid(row=3, column=1, columnspan=2, sticky=W, padx=(10,0))
-        current_file_path.grid_propagate(True)
+        global progress
+
+        self.current_file_path = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here", width=40)
+        self.current_file_path.grid(row=3, column=1, columnspan=2, sticky=W, padx=(10,0))
+        self.current_file_path.grid_propagate(True)
 
         self.current_file_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
-        current_file_button = tk.Button(self.current_audio_project, image=self.current_file_button, width=15, command=self.click_browse)
+        current_file_button = tk.Button(self.current_audio_project, image=self.current_file_button, width=15, command=self.click_browse, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         current_file_button.grid(row=3, column=3)
 
         metadata_file = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here", width=40)
         metadata_file.grid(row=5, column=1, columnspan=2, sticky=W, padx=(10,0))
 
         self.metadata_file_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
-        metadata_file_button = tk.Button(self.current_audio_project, image=self.current_file_button, width=15)
+        metadata_file_button = tk.Button(self.current_audio_project, image=self.current_file_button, width=15, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         metadata_file_button.grid(row=5, column=3)
 
         self.recording_date = tk.Entry(self.current_audio_project)
@@ -201,7 +205,7 @@ class Audio_Manager:
         self.recording_start_bound.insert(0, "Start Time Boundary")
 
         self.play_start = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
-        recording_start_bound_play = tk.Button(self.current_audio_project, image=self.play_start, height=15, width=15)
+        recording_start_bound_play = tk.Button(self.current_audio_project, image=self.play_start, height=15, width=15, command=self.click_play_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         recording_start_bound_play.grid(row=9, column=2, sticky=W, padx=(0,150))
 
         self.recording_end_bound = tk.Entry(self.current_audio_project)
@@ -209,7 +213,7 @@ class Audio_Manager:
         self.recording_end_bound.insert(0, "End Time Boundary")
 
         self.play_end = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
-        recording_end_bound_play = tk.Button(self.current_audio_project, image=self.play_end, height=15, width=15)
+        recording_end_bound_play = tk.Button(self.current_audio_project, image=self.play_end, height=15, width=15, command=self.click_play_end, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         recording_end_bound_play.grid(row=10, column=2, sticky=W, padx=(0,150))
 
         self.recording_file_prefix = tk.Entry(self.current_audio_project)
@@ -221,7 +225,7 @@ class Audio_Manager:
         progress.config(mode='determinate', maximum=99.99, value=0)
 
         self.export_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/export.png')
-        export = tk.Button(self.current_audio_project, image=self.export_button)
+        export = tk.Button(self.current_audio_project, image=self.export_button, command=self.click_save, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         export.grid(row=12, column=3)
 
 ##Key Binds
@@ -293,13 +297,94 @@ class Audio_Manager:
         if self.recording_file_prefix.get() == "":
             self.recording_file_prefix.insert(0, "Filename Prefix")
 
-def click_browse(self, *event): #Location file to load for segmenting
-    global filename #Making this global as I use it later in click_play_start/end
-    filename = filedialog.askopenfilename(title = "Select WAV/WMA/MPEG/MP4 file",filetypes = (("WAV Files","*.wav"),("WMA files","*.wma"),("MPEG files","*.mpeg"),("MP4 files","*.mp4"),("all files","*.*"))) #Using filedialogue module, dictating which file types can be inputted - can change this to your preference if you want to limit
-    self.current_file_path.configure(text=filename) #updating audio entry field to display filepath - might change this just to show filename
+#Functionality
 
+    def click_browse(self, *event):
+        global originalAudio
+        originalAudio = filedialog.askopenfilename(title = "Select WAV/WMA/MPEG/MP4 file",filetypes = (("WAV Files","*.wav"),("WMA files","*.wma"),("MPEG files","*.mpeg"),("MP4 files","*.mp4"),("all files","*.*")))
+        fileDisplay = originalAudio.split("/")[-1]
+        self.current_file_path.configure(text=fileDisplay, justify=LEFT)
+
+    def click_save(self, *event):
+        global progress
+
+        startTime = self.recording_start_time.get()
+        segmentStart = self.recording_start_bound.get()
+        segmentEnd = self.recording_end_bound.get()
+        sittingDate = self.recording_date.get()
+        filePrefix =  self.recording_file_prefix.get()
+
+        start_hour, start_minute, start_second = startTime.split(":")
+        start_seg_hour, start_seg_minute, start_seg_second = segmentStart.split(":")
+        end_hour, end_minute, end_second = segmentEnd.split(":")
+        sitting_day, sitting_month, sitting_year = sittingDate.split("-")
+        epoch_time_hour, epoch_time_minute, epoch_time_second = segmentStart.split(":")
+
+        date_time = sittingDate + " " + segmentStart
+        pattern = "%d-%m-%Y %H:%M:%S"
+        epoch_time = int(time.mktime(time.strptime(date_time, pattern)))
+        converted_time = hex(epoch_time)
+    
+        self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
+        self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
+        self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
+
+        actual_start_segment = float(self.start_segment_time_calc) - float(self.start_time_calc)
+        actual_end_segment = float(self.end_time_calc) - float(self.start_time_calc)
+        target_file_duration = float(actual_end_segment) - float(actual_start_segment)
+
+        self.savelocation = filedialog.askdirectory(title = "Save Location")
+        new_filename = self.savelocation + "/" + str(filePrefix) + "_" + str(sitting_year) + str(sitting_month) + str(sitting_day) + "-" + str(epoch_time_hour) + str(epoch_time_minute) + "_" + str(converted_time) + ".wma"
+        command = ["C:\/ffmpeg\/bin\/ffmpeg.exe", "-i", originalAudio, "-ss", str(actual_start_segment), "-to", str(actual_end_segment), "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
+        Thread(target=lambda: progress_bar_percent(command, target_file_duration, lambda x: progress.config(value=x*100))).start()
+
+    def click_play_start(self, *event):
+        startTime = self.recording_start_time.get()
+        segmentStart = self.recording_start_bound.get()
+
+        start_hour, start_minute, start_second = startTime.split(":")
+        start_seg_hour, start_seg_minute, start_seg_second = segmentStart.split(":")
+
+        self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
+        self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
+
+        actual_start_segment = float(self.start_segment_time_calc) - float(self.start_time_calc)
+        command_play = ["C:\/ffmpeg\/bin\/ffplay.exe", originalAudio, "-ss", str(actual_start_segment), "-t", "10", "-nodisp", "-autoexit"]
+        Thread(target=lambda: play_beginning(command_play)).start()
+
+    def click_play_end(self, *event):
+        startTime = self.recording_start_time.get()
+        start_hour, start_minute, start_second = startTime.split(":")
+        self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
+
+        segmentEnd = self.recording_end_bound.get()
+        end_hour, end_minute, end_second = segmentEnd.split(":")
+        self.end_time_calc = int(end_hour)*3600 + int(end_minute)*60 + int(end_second)
+
+        end_segment = float(self.end_time_calc) - float(self.start_time_calc)
+        actual_end_segment = float(end_segment) - 10 #taking away 10 seconds from end segment
+        
+        command_play = ["C:\/ffmpeg\/bin\/ffplay.exe", originalAudio, "-ss", str(actual_end_segment), "-t", "10", "-nodisp", "-autoexit"]
+        Thread(target=lambda: play_end(command_play)).start()
+
+    def open_twitter(self, *event):
+        webbrowser.open("https://twitter.com/JamesAllnutt94")
+
+    def open_github(self, *event):
+        webbrowser.open("https://github.com/jamesallnutt/Python-Audio-File-Splicer")
+ 
 if __name__ == "__main__":
     root = tk.Tk()
     audio_window = Audio_Manager(root)
+
+    originalAudio = " "
+    sittingDate = " "
+    startTime = " "
+    segmentStart = " "
+    segmentEnd = " "
+    filePrefix = " "
+
+    epoch_time = 0
+    converted_time = 0
 
     root.mainloop()

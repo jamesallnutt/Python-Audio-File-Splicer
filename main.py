@@ -20,7 +20,7 @@ import time
 import subprocess
 
 #Importing from other files in project
-from progress_bar import du_stuff #du_stuff is the name of our load bar progress percentage on GUI
+#from progress_bar import du_stuff #du_stuff is the name of our load bar progress percentage on GUI
 from audio_controls import play_beginning, play_end #these are the subprocess calls for ffplay to run playback
 
 class Window:

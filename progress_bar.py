@@ -68,7 +68,7 @@ def get_duration(file_path):
     return clip.duration
 
 
-def du_stuff(command, result_file_duration, percentage_callback_function):
+def progress_bar_percent(command, result_file_duration, percentage_callback_function):
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
     # Skip all the output before the progress log
     leftover = skip_prefix(p)
