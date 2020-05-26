@@ -21,8 +21,8 @@ class Audio_Manager:
         self.audio_window = audio_window
         self.audio_window.title("PyChop - Audio Editor")
         self.audio_window.iconbitmap(r'gui_element_graphics/favicon.ico')
-        self.audio_window.maxsize(800,400)
-        self.audio_window.minsize(800,400)
+        self.audio_window.maxsize(700,400)
+        self.audio_window.minsize(700,400)
         self.audio_window.configure(bg='#FFFFFF')
 
 
@@ -69,7 +69,7 @@ class Audio_Manager:
         header.grid(row=1, column=1, padx=(5,0), pady=(15,0))
 
         self.plus_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
-        new_project = tk.Button(self.save_management, image=self.plus_button)
+        new_project = tk.Button(self.save_management, image=self.plus_button, command=self.click_save_project)
         new_project.configure(bg='#F6F6F6', fg='#F6F6F6', height=15, width=15, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         new_project.grid(row=1, column=2, padx=(80,0), pady=(15,0))
 
@@ -78,35 +78,36 @@ class Audio_Manager:
         self.search.insert(0, "Search")
 
         self.current_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
-        current_header = tk.Label(self.save_management, image=self.current_header_bg, text="Current Project", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
+        current_header = tk.Label(self.save_management, image=self.current_header_bg, text="Current", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
         current_header.grid(row=3, column=1, sticky=W)
 
         self.past_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Past_Project.png')
-        past_header = tk.Label(self.save_management, image=self.past_header_bg, text="Past Projects", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
+        past_header = tk.Label(self.save_management, image=self.past_header_bg, text="Past", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
         past_header.grid(row=5, column=1, sticky=W)
 
     def project_management_current(self):
-
+        global current_project_title_entry, current_project_recording_entry, current_project_date_entry
         self.save_current_project_info = tk.Frame(self.save_management, bg='#FFFFFF')
         self.save_current_project_info.grid(row=4, column=1, columnspan=2)
         self.save_current_project_info.grid_propagate(True)
 
-        current_project_title = tk.Label(self.save_current_project_info, text="Filename:", fg='#69686D')
+        current_project_title = tk.Label(self.save_current_project_info, text="Original File:", fg='#69686D')
         current_project_title.grid(row=1, column=0, sticky=W)
-        current_project_title_entry = tk.Label(self.save_current_project_info, text="Example Name", width=10)
+        current_project_title_entry = tk.Label(self.save_current_project_info, text="Example Name", width=15, compound=LEFT)
         current_project_title_entry.grid(row=1, column=1, sticky=W)
 
         current_project_date = tk.Label(self.save_current_project_info, text='Date:', fg='#69686D')
         current_project_date.grid(row=2, column=0, sticky=W)
-        current_project_recording_entry = tk.Label(self.save_current_project_info, text="Example Name")
-        current_project_recording_entry.grid(row=2, column=1, sticky=W)
+        current_project_date_entry = tk.Label(self.save_current_project_info, text="Example Name", width=15, compound=LEFT)
+        current_project_date_entry.grid(row=2, column=1, sticky=W)
 
         current_project_recording = tk.Label(self.save_current_project_info, text='Start Time:', fg='#69686D')
         current_project_recording.grid(row=3, column=0, sticky=W)
-        current_project_recording_entry = tk.Label(self.save_current_project_info, text="Example Name")
+        current_project_recording_entry = tk.Label(self.save_current_project_info, text="Example Name", width=15, compound=LEFT)
         current_project_recording_entry.grid(row=3, column=1, sticky=W)
 
     def project_management_past(self):
+        global past_project_title_1
         self.past_project_info = tk.Frame(self.save_management, bg='#FFFFFF')
         self.past_project_info.grid(row=6, column=1, columnspan=2)
         self.past_project_info.grid_propagate(True)
@@ -162,7 +163,7 @@ class Audio_Manager:
         self.current_audio_project.grid_propagate(False)
 
         self.current_header_backg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
-        current_header = tk.Label(self.current_audio_project, image=self.current_header_backg, compound=CENTER, text="Current Project", bg='#FFFFFF', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
+        current_header = tk.Label(self.current_audio_project, image=self.current_header_backg, compound=CENTER, text="Current", bg='#FFFFFF', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
         current_header.grid(row=1, column=1, sticky=W, padx=(5,0), pady=(15,0))
 
         browse = tk.Label(self.current_audio_project, text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
@@ -373,6 +374,26 @@ class Audio_Manager:
     def open_github(self, *event):
         webbrowser.open("https://github.com/jamesallnutt/Python-Audio-File-Splicer")
  
+    def click_save_project(self, *event):
+        global originalAudio, current_project_title_entry, current_project_recording_entry, current_project_date_entry
+
+        fileDisplay = originalAudio.split("/")[-1]
+        saveFileDisplay = (fileDisplay[0:10]+"...")
+        startTime = self.recording_start_time.get()
+        segmentStart = self.recording_start_bound.get()
+        segmentEnd = self.recording_end_bound.get()
+        sittingDate = self.recording_date.get()
+        filePrefix =  self.recording_file_prefix.get()
+
+        current_project_title_entry.configure(text=saveFileDisplay)
+        current_project_date_entry.configure(text=sittingDate)
+        current_project_recording_entry.configure(text=startTime)
+
+    def previous_projects(self, *event):
+        print("Test")
+
+
+
 if __name__ == "__main__":
     root = tk.Tk()
     audio_window = Audio_Manager(root)
