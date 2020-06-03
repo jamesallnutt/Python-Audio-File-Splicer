@@ -9,6 +9,7 @@ from subprocess import Popen, PIPE, run #Module that allows running OS Processes
 from functools import reduce
 import tkcalendar as tkc
 import os
+import pickle
 import sys
 import time
 import subprocess
@@ -370,22 +371,22 @@ class Audio_Manager:
         webbrowser.open("https://github.com/jamesallnutt/Python-Audio-File-Splicer")
  
     def click_save_project(self, *event):
-        global originalAudio, current_project_title_entry, current_project_recording_entry, current_project_date_entry
+        global originalAudio
 
-        fileDisplay = originalAudio.split("/")[-1]
-        saveFileDisplay = (fileDisplay[0:10]+"...")
         startTime = self.recording_start_time.get()
-        segmentStart = self.recording_start_bound.get()
-        segmentEnd = self.recording_end_bound.get()
         sittingDate = self.recording_date.get()
         filePrefix =  self.recording_file_prefix.get()
+        
+        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","audioManagement.dat")
+        save_file = [filePrefix, sittingDate, startTime, originalAudio]
+        pickle.dump(save_file, open(save_path, "wb"))
 
-        current_project_title_entry.configure(text=saveFileDisplay)
-        current_project_date_entry.configure(text=sittingDate)
-        current_project_recording_entry.configure(text=startTime)
+        print(save_path)
+        print(save_file)
 
     def previous_projects(self, *event):
-        print("Test")
+        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","audioManagement.dat")
+        save_file = pickle.load(open(save_path, "rb"))
 
 
 
