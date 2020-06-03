@@ -28,8 +28,6 @@ class Audio_Manager:
         self.audio_window.minsize(700,400)
         self.audio_window.configure(bg='#FFFFFF')
 
-
-        #Loading the below functions on boot of the App - buttons, frames etc.
         self.social_media()
         self.project_management_headers()
         self.project_management_current()
@@ -90,6 +88,7 @@ class Audio_Manager:
 
     def project_management_current(self):
         global current_project_title_entry, current_project_recording_entry, current_project_date_entry
+
         self.save_current_project_info = tk.Frame(self.save_management, bg='#FFFFFF')
         self.save_current_project_info.grid(row=4, column=1, columnspan=2)
         self.save_current_project_info.grid_propagate(True)
@@ -108,6 +107,10 @@ class Audio_Manager:
         current_project_recording.grid(row=3, column=0, sticky=W)
         current_project_recording_entry = tk.Label(self.save_current_project_info, text="Example Name", width=15, compound=LEFT)
         current_project_recording_entry.grid(row=3, column=1, sticky=W)
+
+        self.save_current_project_info_bg = tk.PhotoImage(file=r'gui_element_graphics/saveProjectBG.png')
+        current_project = tk.Label(self.save_management, image=self.save_current_project_info_bg)
+        current_project.grid(row=4, column=1)
 
     def project_management_past(self):
         global past_project_title_1
@@ -236,8 +239,6 @@ class Audio_Manager:
         export = tk.Button(self.current_audio_project, image=self.export_button, command=self.click_save, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         export.grid(row=13, column=3, sticky=W)
 
-##Key Binds
-
     def key_bindings(self):
         self.search.bind("<FocusIn>", self.search_click)
         self.search.bind("<FocusOut>", self.search_out_focus)
@@ -293,8 +294,6 @@ class Audio_Manager:
     def recording_file_prefix_out_focus(self, event):
         if self.recording_file_prefix.get() == "":
             self.recording_file_prefix.insert(0, "e.g. EventName")
-
-#Functionality
 
     def click_browse(self, *event):
         global originalAudio
@@ -376,6 +375,10 @@ class Audio_Manager:
         startTime = self.recording_start_time.get()
         sittingDate = self.recording_date.get()
         filePrefix =  self.recording_file_prefix.get()
+
+        current_project_title_entry.configure(text=filePrefix)
+        current_project_date_entry.configure(text=sittingDate)
+        current_project_recording_entry.configure(text=startTime)
         
         save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","audioManagement.dat")
         save_file = [filePrefix, sittingDate, startTime, originalAudio]
@@ -387,7 +390,6 @@ class Audio_Manager:
     def previous_projects(self, *event):
         save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","audioManagement.dat")
         save_file = pickle.load(open(save_path, "rb"))
-
 
 
 if __name__ == "__main__":
