@@ -4,9 +4,15 @@ from tkinter import filedialog
 from tkinter import *
 from tkinter import ttk #Secondary Tkinter Module which includes Progress Bar
 from threading import Thread #Module that allows Threading
+from ttkthemes import ThemedTk
 from queue import Queue, Empty
 from subprocess import Popen, PIPE, run #Module that allows running OS Processes
 from functools import reduce
+import ffmpy
+from ffmpy import FFmpeg
+import pydub
+from pydub import AudioSegment
+from pydub.playback import play
 import tkcalendar as tkc
 import os
 import pickle
@@ -16,25 +22,26 @@ import subprocess
 import webbrowser
 import json
 
+
 from progressBar import progress_bar_percent #progress_bar_percent is the name of our load bar progress percentage on GUI
 from audioControls import play_beginning, play_end #these are the subprocess calls for ffplay to run playback
 
 class Audio_Manager:
     def __init__(self, audio_window):
         self.audio_window = audio_window
-        self.audio_window.title("PyChop - Audio Editor")
-        self.audio_window.iconbitmap(r'gui_element_graphics/favicon.ico')
-        self.audio_window.maxsize(700,400)
-        self.audio_window.minsize(700,400)
-        self.audio_window.configure(bg='#FFFFFF')
+        self.audio_window.title("Audio Production Tool Set")
+        self.audio_window.iconbitmap(r'gui_element_graphics\app_icon.ico')
+        self.audio_window.maxsize(670,400)
+        self.audio_window.minsize(670,400)
+        self.audio_window.configure(bg='#625772')
 
         self.social_media()
         self.project_management_headers()
-        self.project_management_current()
-        self.project_management_past()
+        self.project_management()
         self.current_project_headers()
         self.current_project_tools()
         self.key_bindings()
+        self.load_previous_projects_on_launch()
 
     def social_media(self):
         self.social_frame = tk.Frame(self.audio_window, bg='#625772', width=61, height=400)
@@ -67,182 +74,188 @@ class Audio_Manager:
         self.save_management.grid_propagate(False)
 
         header = tk.Label(self.save_management, text="Audio Projects", bg='#F6F6F6', fg='#69686D', font=('Helvetica', 12, 'bold'))
-        header.grid(row=1, column=1, padx=(5,0), pady=(15,0))
+        header.grid(row=1, column=1, padx=(5,0), pady=(15), sticky=W)
+
+    def project_management(self):
+        global current_project_title_entry, current_project_recording_entry, current_project_date_entry, past_project_title_entry, past_project_date_entry, past_project_recording_entry, past_2_project_title_entry, past_2_project_date_entry, past_2_project_recording_entry
+
+        self.project_info = tk.Frame(self.save_management)
+        self.project_info.grid(row=4, column=1, columnspan=2, rowspan=1)
+        self.project_info.grid_propagate(True)
+
+        self.current_header_bg = tk.PhotoImage(file=r'gui_element_graphics\project_headers\pink_header.png')
+        self.current_header_bg = self.current_header_bg.subsample(5,4)
+        current_project_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
+        current_project_header_canvas = Canvas(self.project_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
+        current_project_header_canvas.grid(row=0, column=0, rowspan=1, sticky=NSEW)
+        current_project_header_canvas.create_image(5, 0, anchor=NW, image=self.current_header_bg)
+        current_project_header_canvas.create_window(20, 0, anchor=NW, window=current_project_header)
+
+        current_project_title = tk.Label(text="Original File:", fg='#69686D', bg='#FFFFFF')
+        current_project_date = tk.Label(text='Date:', fg='#69686D', bg='#FFFFFF')
+        current_project_recording = tk.Label(text='Start Time:', fg='#69686D', bg='#FFFFFF')
+        current_project_title_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
+        current_project_date_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
+        current_project_recording_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
 
         self.plus_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
-        new_project = tk.Button(self.save_management, image=self.plus_button, command=self.click_save_project)
-        new_project.configure(bg='#F6F6F6', fg='#F6F6F6', height=15, width=15, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        new_project.grid(row=1, column=2, padx=(80,0), pady=(15,0))
+        save_button = tk.Button(self.save_management, image=self.plus_button, command=self.click_save_project)
+        save_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
 
-        self.search = tk.Entry(self.save_management)
-        self.search.grid(row=2, column=1, columnspan=2, padx=(5,0), pady=(5), sticky=W)
-        self.search.insert(0, "Search")
+        self.project_background = tk.PhotoImage(file=r'gui_element_graphics\panels\save_panels.png')
+        current_project_canvas = Canvas(self.project_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
+        current_project_canvas.grid(row=1, column=0, sticky=NSEW)
+        current_project_canvas.create_image(5, 0, anchor=NW, image=self.project_background)
+        current_project_canvas.create_window(25, 15, anchor=NW, window=current_project_title)
+        current_project_canvas.create_window(25, 35, anchor=NW, window=current_project_date)
+        current_project_canvas.create_window(25, 55, anchor=NW, window=current_project_recording)
+        current_project_canvas.create_window(100, 15, anchor=NW, window=current_project_title_entry)
+        current_project_canvas.create_window(100, 35, anchor=NW, window=current_project_date_entry)
+        current_project_canvas.create_window(100, 55, anchor=NW, window=current_project_recording_entry)
+        current_project_canvas.create_window(200, 0, anchor=NW, window=save_button)
 
-        self.current_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
-        current_header = tk.Label(self.save_management, image=self.current_header_bg, text="Current", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
-        current_header.grid(row=3, column=1, sticky=W)
+        self.past_header_bg = tk.PhotoImage(file=r'gui_element_graphics\project_headers\purple_header.png')
+        self.past_header_bg = self.past_header_bg.subsample(5,4)
+        past_project_header = tk.Label(text="Last Edits", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
+        past_project_header_canvas = Canvas(self.project_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
+        past_project_header_canvas.grid(row=2, column=0, rowspan=1, sticky=NSEW)
+        past_project_header_canvas.create_image(5, 0, anchor=NW, image=self.past_header_bg)
+        past_project_header_canvas.create_window(15, 0, anchor=NW, window=past_project_header)
 
-        self.past_header_bg = tk.PhotoImage(file=r'gui_element_graphics/Past_Project.png')
-        past_header = tk.Label(self.save_management, image=self.past_header_bg, text="Past", bg='#F6F6F6', fg='#FFFFFF', font=('Helvetica', 8, 'bold'), compound=CENTER)
-        past_header.grid(row=5, column=1, sticky=W)
+        past_project_title = tk.Label(text="Original File:", fg='#69686D', bg='#FFFFFF')
+        past_project_date = tk.Label(text='Date:', fg='#69686D', bg='#FFFFFF')
+        past_project_recording = tk.Label(text='Start Time:', fg='#69686D', bg='#FFFFFF')
+        past_project_title_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_project_date_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_project_recording_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
 
-    def project_management_current(self):
-        global current_project_title_entry, current_project_recording_entry, current_project_date_entry
+        load_button = tk.Button(self.save_management, image=self.plus_button)
+        load_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.click_previous_project_1)
 
-        self.save_current_project_info = tk.Frame(self.save_management, bg='#FFFFFF')
-        self.save_current_project_info.grid(row=4, column=1, columnspan=2)
-        self.save_current_project_info.grid_propagate(True)
+        past_project_canvas = Canvas(self.project_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
+        past_project_canvas.grid(row=3, column=0, sticky=NSEW)
+        past_project_canvas.create_image(5, 0, anchor=NW, image=self.project_background)
+        past_project_canvas.create_window(25, 15, anchor=NW, window=past_project_title)
+        past_project_canvas.create_window(25, 35, anchor=NW, window=past_project_date)
+        past_project_canvas.create_window(25, 55, anchor=NW, window=past_project_recording)
+        past_project_canvas.create_window(100, 15, anchor=NW, window=past_project_title_entry)
+        past_project_canvas.create_window(100, 35, anchor=NW, window=past_project_date_entry)
+        past_project_canvas.create_window(100, 55, anchor=NW, window=past_project_recording_entry)
+        past_project_canvas.create_window(200, 0, anchor=NW, window=load_button)
 
-        current_project_title = tk.Label(self.save_current_project_info, text="Original File:", fg='#69686D')
-        current_project_title.grid(row=1, column=0, sticky=W)
-        current_project_title_entry = tk.Label(self.save_current_project_info, text="Example Name", width=15, compound=LEFT)
-        current_project_title_entry.grid(row=1, column=1, sticky=W)
+        past_2_project_title = tk.Label(text="Original File:", fg='#69686D', bg='#FFFFFF')
+        past_2_project_date = tk.Label(text='Date:', fg='#69686D', bg='#FFFFFF')
+        past_2_project_recording = tk.Label(text='Start Time:', fg='#69686D', bg='#FFFFFF')
+        past_2_project_title_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_2_project_date_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_2_project_recording_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
 
-        current_project_date = tk.Label(self.save_current_project_info, text='Date:', fg='#69686D')
-        current_project_date.grid(row=2, column=0, sticky=W)
-        current_project_date_entry = tk.Label(self.save_current_project_info, text="Example Name", width=15, compound=LEFT)
-        current_project_date_entry.grid(row=2, column=1, sticky=W)
+        load_2_button = tk.Button(self.save_management, image=self.plus_button)
+        load_2_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.click_previous_project_2)
 
-        current_project_recording = tk.Label(self.save_current_project_info, text='Start Time:', fg='#69686D')
-        current_project_recording.grid(row=3, column=0, sticky=W)
-        current_project_recording_entry = tk.Label(self.save_current_project_info, text="Example Name", width=15, compound=LEFT)
-        current_project_recording_entry.grid(row=3, column=1, sticky=W)
-
-        self.save_current_project_info_bg = tk.PhotoImage(file=r'gui_element_graphics/saveProjectBG.png')
-        current_project = tk.Label(self.save_management, image=self.save_current_project_info_bg)
-        current_project.grid(row=4, column=1)
-
-    def project_management_past(self):
-        global past_project_title_1
-        self.past_project_info = tk.Frame(self.save_management, bg='#FFFFFF')
-        self.past_project_info.grid(row=6, column=1, columnspan=2)
-        self.past_project_info.grid_propagate(True)
-
-        past_project_title_1 = tk.Label(self.past_project_info, text="Filename:", fg='#69686D')
-        past_project_title_1.grid(row=1, column=0, sticky=W)
-        past_project_title_1_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_title_1_entry.grid(row=1, column=1, sticky=W)
-
-        past_project_date_1 = tk.Label(self.past_project_info, text='Date:', fg='#69686D')
-        past_project_date_1.grid(row=2, column=0, sticky=W)
-        past_project_date_1_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_date_1_entry.grid(row=2, column=1, sticky=W)
-
-        past_project_recording_1 = tk.Label(self.past_project_info, text='Start Time:', fg='#69686D')
-        past_project_recording_1.grid(row=3, column=0, sticky=W)
-        past_project_recording_1_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_recording_1_entry.grid(row=3, column=1, sticky=W)
-
-        past_project_title_2 = tk.Label(self.past_project_info, text="Filename:", fg='#69686D')
-        past_project_title_2.grid(row=4, column=0, sticky=W)
-        past_project_title_2_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_title_2_entry.grid(row=4, column=1, sticky=W)
-
-        past_project_date_2 = tk.Label(self.past_project_info, text='Date:', fg='#69686D')
-        past_project_date_2.grid(row=5, column=0, sticky=W)
-        past_project_date_2_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_date_2_entry.grid(row=5, column=1, sticky=W)
-
-        past_project_recording_2 = tk.Label(self.past_project_info, text='Start Time:', fg='#69686D')
-        past_project_recording_2.grid(row=6, column=0, sticky=W)
-        past_project_recording_2_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_recording_2_entry.grid(row=6, column=1, sticky=W)
-
-        past_project_title_3 = tk.Label(self.past_project_info, text="Filename:", fg='#69686D')
-        past_project_title_3.grid(row=7, column=0, sticky=W)
-        past_project_title_3_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_title_3_entry.grid(row=7, column=1, sticky=W)
-
-        past_project_date_3 = tk.Label(self.past_project_info, text='Date:', fg='#69686D')
-        past_project_date_3.grid(row=8, column=0, sticky=W)
-        past_project_date_3_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_date_3_entry.grid(row=8, column=1, sticky=W)
-
-        past_project_recording_3 = tk.Label(self.past_project_info, text='Start Time:', fg='#69686D')
-        past_project_recording_3.grid(row=9, column=0, sticky=W)
-        past_project_recording_3_entry = tk.Label(self.past_project_info, text="Example Name")
-        past_project_recording_3_entry.grid(row=9, column=1, sticky=W)
+        past_2_project_canvas = Canvas(self.project_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
+        past_2_project_canvas.grid(row=4, column=0, sticky=NSEW)
+        past_2_project_canvas.create_image(5, 0, anchor=NW, image=self.project_background)
+        past_2_project_canvas.create_window(25, 15, anchor=NW, window=past_2_project_title)
+        past_2_project_canvas.create_window(25, 35, anchor=NW, window=past_2_project_date)
+        past_2_project_canvas.create_window(25, 55, anchor=NW, window=past_2_project_recording)
+        past_2_project_canvas.create_window(100, 15, anchor=NW, window=past_2_project_title_entry)
+        past_2_project_canvas.create_window(100, 35, anchor=NW, window=past_2_project_date_entry)
+        past_2_project_canvas.create_window(100, 55, anchor=NW, window=past_2_project_recording_entry)
+        past_2_project_canvas.create_window(200, 0, anchor=NW, window=load_2_button)
 
     def current_project_headers(self):
-        self.current_audio_project = tk.Frame(self.audio_window, bg='#FFFFFF', height=400, width=452)
+        global tools_canvas
+
+        self.current_audio_project = tk.Frame(self.audio_window, bg='#F6F6F6', height=400, width=462)
         self.current_audio_project.grid(row=0, column=2)
         self.current_audio_project.grid_propagate(False)
 
-        self.current_header_backg = tk.PhotoImage(file=r'gui_element_graphics/Current_Project.png')
-        current_header = tk.Label(self.current_audio_project, image=self.current_header_backg, compound=CENTER, text="Current", bg='#FFFFFF', fg='#FFFFFF', font=('Helvetica', 8, 'bold'))
-        current_header.grid(row=1, column=1, sticky=W, padx=(5,0), pady=(15,0))
+        project_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
+        browse = tk.Label(text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
+        editing_header = tk.Label(text="Export Options", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
 
-        browse = tk.Label(self.current_audio_project, text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
-        browse.grid(row=2, column=1, padx=(10,0), sticky=W)
+        self.tools_canvas_image = tk.PhotoImage(file=r'gui_element_graphics\panels\project_tools.png')
 
-        editing_header = tk.Label(self.current_audio_project, text="Export Options", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
-        editing_header.grid(row=6, column=1, padx=(10,0), sticky=W)
+        tools_canvas = Canvas(self.current_audio_project, bg='#F6F6F6', bd=0, highlightthickness=0, height=340)
+        tools_canvas.grid(row=1, column=1, columnspan=2, sticky=NSEW, pady=(10,0))
+        tools_canvas.create_image(10, 0, anchor=NW, image=self.tools_canvas_image)
+        tools_canvas.create_image(27, 15, anchor=NW, image=self.current_header_bg)
+        tools_canvas.create_window(42, 15, anchor=NW, window=project_header)
+        tools_canvas.create_window(27, 50, anchor=NW, window=browse)
+        tools_canvas.create_window(27, 100, anchor=NW, window=editing_header)
 
     def current_project_tools(self):
-        global progress
+        global progress, tools_canvas
 
-        self.current_file_path = tk.Label(self.current_audio_project, bg='#F6F6F6', text="Filepath here")
-        self.current_file_path.grid(row=3, column=1, columnspan=2, sticky=EW, padx=(10,0))
-        self.current_file_path.grid_propagate(True)
-
+        self.current_fp_background = tk.Label(bg='#F6F6F6', width=35)
+        self.current_file_path = tk.Label(text="Click To Add Audio", bg='#FFFFFF', fg='#69686D', borderwidth=1, width=35)
         self.current_file_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
-        current_file_button = tk.Button(self.current_audio_project, image=self.current_file_button, width=15, command=self.click_browse, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
-        current_file_button.grid(row=3, column=3, sticky=W)
+        current_file_button = tk.Button(image=self.current_file_button, width=17, command=self.click_browse, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
+  
+        recordingDateLabel = tk.Label(self.current_audio_project, text="Sitting Date", bg='#FFFFFF', fg='#69686D')
+        self.recording_date = tkc.DateEntry(self.current_audio_project, locale='en_GB', bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
 
-        recordingDateLabel = tk.Label(self.current_audio_project, text="Sitting Date")
-        recordingDateLabel.grid(row=7, column=1)
-
-        self.recording_date = tkc.DateEntry(self.current_audio_project)
-        self.recording_date.grid(row=7, column=2, padx=(10,0), sticky=EW)
-
-        recordingStartTime = tk.Label(self.current_audio_project, text="Recording Start Time")
-        recordingStartTime.grid(row=8, column=1)
-
-        self.recording_start_time = tk.Entry(self.current_audio_project)
-        self.recording_start_time.grid(row=8, column=2, padx=(10,0), sticky=EW)
+        recordingStartTime = tk.Label(self.current_audio_project, text="Recording Start Time", bg='#FFFFFF', fg='#69686D')
+        self.recording_start_time = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_start_time.insert(0, "e.g. 09:41:00")
+        calculator_button = tk.Button(image=self.current_file_button, width=17, command=self.open_calculator, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
-        audioChunkStartTime =  tk.Label(self.current_audio_project, text="Start Boundary")
-        audioChunkStartTime.grid(row=9, column=1)
-
-        self.recording_start_bound = tk.Entry(self.current_audio_project)
-        self.recording_start_bound.grid(row=9, column=2, padx=(10,0), sticky=EW)
+        audioChunkStartTime =  tk.Label(self.current_audio_project, text="Start Boundary", bg='#FFFFFF', fg='#69686D')
+        self.recording_start_bound = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_start_bound.insert(0, "e.g. 10:03:00")
 
         self.play_start = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
-        recording_start_bound_play = tk.Button(self.current_audio_project, image=self.play_start, height=15, width=15, command=self.click_play_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
-        recording_start_bound_play.grid(row=9, column=3, sticky=W, padx=(0,150))
+        recording_start_bound_play = tk.Button(self.current_audio_project, image=self.play_start, height=15, width=17, command=self.click_play_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
-        audioChunkEndTime = tk.Label(self.current_audio_project, text="End Boundary")
-        audioChunkEndTime.grid(row=10, column=1)
-
-        self.recording_end_bound = tk.Entry(self.current_audio_project)
-        self.recording_end_bound.grid(row=10, column=2, padx=(10,0), sticky=EW)
+        audioChunkEndTime = tk.Label(self.current_audio_project, text="End Boundary", bg='#FFFFFF', fg='#69686D')
+        self.recording_end_bound = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_end_bound.insert(0, "e.g. 12:30:21")
 
         self.play_end = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
-        recording_end_bound_play = tk.Button(self.current_audio_project, image=self.play_end, height=15, width=15, command=self.click_play_end, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
-        recording_end_bound_play.grid(row=10, column=3, sticky=W, padx=(0,150))
+        recording_end_bound_play = tk.Button(self.current_audio_project, image=self.play_end, height=15, width=17, command=self.click_play_end, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
-        audioFileNamePrefix = tk.Label(self.current_audio_project, text="Filename Prefix")
-        audioFileNamePrefix.grid(row=11, column=1)
-
-        self.recording_file_prefix = tk.Entry(self.current_audio_project)
-        self.recording_file_prefix.grid(row=11, column=2, padx=(10,0), sticky=EW)
+        audioFileNamePrefix = tk.Label(self.current_audio_project, text="Filename Prefix", bg='#FFFFFF', fg='#69686D')
+        self.recording_file_prefix = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_file_prefix.insert(0, "e.g. EventName")
-
-        progress = ttk.Progressbar(self.current_audio_project, orient = HORIZONTAL, length = 20)
-        progress.grid(row=13, column=1, columnspan=2, sticky='nswe', padx=(10,0), pady=10)
-        progress.config(mode='determinate', maximum=99.99, value=0)
 
         self.export_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/export.png')
         export = tk.Button(self.current_audio_project, image=self.export_button, command=self.click_save, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
-        export.grid(row=13, column=3, sticky=W)
+
+        self.reset_button = tk.PhotoImage(file=r'gui_element_graphics\buttons\reset.png')
+        reset = tk.Button(self.current_audio_project, image=self.reset_button, command=self.click_reset, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
+
+        tools_canvas.create_window(26, 74, anchor=NW, window=self.current_fp_background)
+
+        tools_canvas.create_window(27, 75, anchor=NW, window=self.current_file_path)
+        tools_canvas.create_window(282, 73, anchor=NW, window=current_file_button)
+
+        tools_canvas.create_window(27, 140, anchor=NW, window=recordingDateLabel)
+        tools_canvas.create_window(152, 140, anchor=NW, window=self.recording_date)
+
+        tools_canvas.create_window(27, 170, anchor=NW, window=recordingStartTime)
+        tools_canvas.create_window(152, 170, anchor=NW, window=self.recording_start_time)
+        tools_canvas.create_window(282, 169, anchor=NW, window=calculator_button)
+
+        tools_canvas.create_window(27, 200, anchor=NW, window=audioChunkStartTime)
+        tools_canvas.create_window(152, 200, anchor=NW, window=self.recording_start_bound)
+        tools_canvas.create_window(282, 202, anchor=NW, window=recording_start_bound_play)
+
+        tools_canvas.create_window(27, 230, anchor=NW, window=audioChunkEndTime)
+        tools_canvas.create_window(152, 230, anchor=NW, window=self.recording_end_bound)
+        tools_canvas.create_window(282, 232, anchor=NW, window=recording_end_bound_play)
+
+        tools_canvas.create_window(27, 260, anchor=NW, window=audioFileNamePrefix)
+        tools_canvas.create_window(152, 260, anchor=NW, window=self.recording_file_prefix)
+
+        tools_canvas.create_window(322, 287, anchor=NW, window=export)
+        tools_canvas.create_window(26, 287, anchor=NW, window=reset)
+
+        progress = ttk.Progressbar(self.current_audio_project, orient = HORIZONTAL, length = 20)
+        progress.config(mode='determinate', maximum=99.99, value=0)
+        progress.grid(row=2, column=1, columnspan=2, sticky='nwe', padx=(20,8), pady=(10,0))
 
     def key_bindings(self):
-        self.search.bind("<FocusIn>", self.search_click)
-        self.search.bind("<FocusOut>", self.search_out_focus)
-
         self.recording_start_time.bind("<FocusIn>", self.recording_start_time_click)
         self.recording_start_time.bind("<FocusOut>", self.recording_start_time_out_focus)
 
@@ -254,14 +267,6 @@ class Audio_Manager:
         
         self.recording_file_prefix.bind("<FocusIn>", self.recording_file_prefix_click)
         self.recording_file_prefix.bind("<FocusOut>", self.recording_file_prefix_out_focus)
-
-    def search_click(self, event):
-        if self.search.get() == "Search":
-            self.search.delete(0, "end")
-
-    def search_out_focus(self, event):
-        if self.search.get() == "":
-            self.search.insert(0, "Search")
 
     def recording_start_time_click(self, event):
         if self.recording_start_time.get() == "e.g. 09:41:00":
@@ -296,7 +301,7 @@ class Audio_Manager:
             self.recording_file_prefix.insert(0, "e.g. EventName")
 
     def click_browse(self, *event):
-        global originalAudio
+        global originalAudio, fileDisplay
         originalAudio = filedialog.askopenfilename(title = "Select WAV/WMA/MPEG/MP4 file",filetypes = (("WAV Files","*.wav"),("WMA files","*.wma"),("MPEG files","*.mpeg"),("MP4 files","*.mp4"),("all files","*.*")))
         fileDisplay = originalAudio.split("/")[-1]
         self.current_file_path.configure(text=fileDisplay, justify=LEFT)
@@ -319,7 +324,8 @@ class Audio_Manager:
         date_time = sittingDate + " " + segmentStart
         pattern = "%d/%m/%Y %H:%M:%S"
         epoch_time = int(time.mktime(time.strptime(date_time, pattern)))
-        converted_time = hex(epoch_time)
+        nano_seconds = (int(epoch_time)+11644473600)*10000000
+        converted_time = hex(nano_seconds)
     
         self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
@@ -331,7 +337,11 @@ class Audio_Manager:
 
         self.savelocation = filedialog.askdirectory(title = "Save Location")
         new_filename = self.savelocation + "/" + str(filePrefix) + "_" + str(sitting_year) + str(sitting_month) + str(sitting_day) + "-" + str(epoch_time_hour) + str(epoch_time_minute) + "_" + str(converted_time) + ".wma"
-        command = ["C:\/ffmpeg\/bin\/ffmpeg.exe", "-i", originalAudio, "-ss", str(actual_start_segment), "-to", str(actual_end_segment), "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
+        ffmpeg_command = FFmpeg(
+            inputs={originalAudio: None},
+            outputs={new_filename: ['-ss', str(actual_start_segment), '-to', str(actual_end_segment), '-async', '1', '-strict', '-2', '-ar', '44100', '-ab', '56k', '-ac', '1', '-y']}
+        )
+        command = ffmpeg_command.cmd
         Thread(target=lambda: progress_bar_percent(command, target_file_duration, lambda x: progress.config(value=x*100))).start()
 
     def click_play_start(self, *event):
@@ -345,7 +355,7 @@ class Audio_Manager:
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
 
         actual_start_segment = float(self.start_segment_time_calc) - float(self.start_time_calc)
-        command_play = ["C:\/ffmpeg\/bin\/ffplay.exe", originalAudio, "-ss", str(actual_start_segment), "-t", "10", "-nodisp", "-autoexit"]
+        command_play = ['C:\\Program Files\\ffmpeg\\bin\\ffplay.exe', originalAudio, "-ss", str(actual_start_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_beginning(command_play)).start()
 
     def click_play_end(self, *event):
@@ -360,8 +370,15 @@ class Audio_Manager:
         end_segment = float(self.end_time_calc) - float(self.start_time_calc)
         actual_end_segment = float(end_segment) - 10 #taking away 10 seconds from end segment
         
-        command_play = ["C:\/ffmpeg\/bin\/ffplay.exe", originalAudio, "-ss", str(actual_end_segment), "-t", "10", "-nodisp", "-autoexit"]
+        command_play = ['C:\\Program Files\\ffmpeg\\bin\\ffplay.exe', originalAudio, "-ss", str(actual_end_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_end(command_play)).start()
+
+    def click_reset(self, *event):
+        self.recording_start_bound.delete(0,'end')
+        self.recording_end_bound.delete(0,'end')
+        self.recording_start_bound.insert(0, "e.g. 10:03:00")
+        self.recording_end_bound.insert(0, "e.g. 12:30:21")
+        progress.config(value=0)
 
     def open_twitter(self, *event):
         webbrowser.open("https://twitter.com/JamesAllnutt94")
@@ -380,20 +397,162 @@ class Audio_Manager:
         current_project_date_entry.configure(text=sittingDate)
         current_project_recording_entry.configure(text=startTime)
         
-        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","audioManagement.dat")
+        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
         save_file = [filePrefix, sittingDate, startTime, originalAudio]
-        pickle.dump(save_file, open(save_path, "wb"))
 
-        print(save_path)
-        print(save_file)
+        if os.path.getsize(save_path) > 0:
+            with open(save_path, "rb") as file:
+                append_save_file = [filePrefix, sittingDate, startTime, originalAudio]
+                saved_content = pickle.Unpickler(file)
+                load_file = saved_content.load()
+                print(load_file)
+                if len(load_file) == 8:
+                    del load_file[4 : 8]
+                    print(load_file)
+                if len(load_file) == 4:
+                    new_save = append_save_file + load_file
+                    print(new_save)
+                    pickle.dump(new_save, open(save_path, "wb"))
+        else:
+            pickle.dump(save_file, open(save_path, "wb"))
 
-    def previous_projects(self, *event):
-        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","audioManagement.dat")
-        save_file = pickle.load(open(save_path, "rb"))
+    def click_previous_project_1(self, *event):
+        global originalAudio, fileDisplay
+        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
+        with open(save_path, "rb") as file:
+            saved_content = pickle.Unpickler(file)
+            load_project_1 = saved_content.load()
+        originalAudio = str(load_project_1[3])
+        fileDisplay = originalAudio.split("/")[-1]
+        self.current_file_path.configure(text=fileDisplay, justify=LEFT)
+        sittingDate = str(load_project_1[1])
+        self.recording_date.set_date(sittingDate)
+        startTime = str(load_project_1[2])
+        self.recording_start_time.delete(0,'end')
+        self.recording_start_time.insert(0,startTime)
+        filePrefix = str(load_project_1[0])
+        self.recording_file_prefix.delete(0,'end')
+        self.recording_file_prefix.insert(0,filePrefix)
 
+    def click_previous_project_2(self, *event):
+        global originalAudio, fileDisplay
+        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
+        with open(save_path, "rb") as file:
+            saved_content = pickle.Unpickler(file)
+            load_project_1 = saved_content.load()
+        originalAudio = str(load_project_1[7])
+        fileDisplay = originalAudio.split("/")[-1]
+        self.current_file_path.configure(text=fileDisplay, justify=LEFT)
+        sittingDate = str(load_project_1[5])
+        self.recording_date.set_date(sittingDate)
+        startTime = str(load_project_1[6])
+        self.recording_start_time.delete(0,'end')
+        self.recording_start_time.insert(0,startTime)
+        filePrefix = str(load_project_1[4])
+        self.recording_file_prefix.delete(0,'end')
+        self.recording_file_prefix.insert(0,filePrefix)
+
+    def load_previous_projects_on_launch(self, *event):
+        global originalAudio, load_project_1
+        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
+
+        if os.path.getsize(save_path) > 0:
+            with open(save_path, "rb") as file:
+                saved_content = pickle.Unpickler(file)
+                load_project_1 = saved_content.load()
+                past_project_title_entry.configure(text=load_project_1[0])
+                past_project_date_entry.configure(text=load_project_1[1])
+                past_project_recording_entry.configure(text=load_project_1[2])
+                past_2_project_title_entry.configure(text=load_project_1[4])
+                past_2_project_date_entry.configure(text=load_project_1[5])
+                past_2_project_recording_entry.configure(text=load_project_1[6])
+
+    def show_timecode_calculator(self, _class):
+        self.new = tk.Toplevel(self.audio_window)
+        _class(self.new)
+
+    def open_calculator(self):
+        calculator_window = Toplevel(root)
+        self.calculator_window = calculator_window
+        self.calculator_window.title("Timestamp Calculator")
+        self.calculator_window.iconbitmap(r'gui_element_graphics\app_icon.ico')
+        self.calculator_window.configure(bg='#FFFFFF')
+
+        tutorial = tk.Text(self.calculator_window, height=7, bg='#FFFFFF', highlightthickness=0, bd=0)
+        tutorial.grid(row=0, column=1, columnspan=4, rowspan=1, sticky=NSEW, pady=(0,10))
+        tutorial.tag_configure("allText", justify=CENTER, background='#FFFFFF', foreground='#69686D', font=('Helvetica', 9, 'bold'))
+        tutorial_text = """ 
+        This is a quick tool to calculate the
+        start time of a recording for you. Listen to the raw audio,
+        find the time elapsed which matches the first line spoken in
+        the transcript, then put the time elapsed value into "Time Elapsed"
+        below, and the actual timestamp from the first spoken line in the
+        transcript into the "First Timestamp" below.
+        """
+        tutorial.insert(tk.END, tutorial_text, "allText")
+
+        time_elapsed_label = tk.Label(self.calculator_window, text="Time Elapsed in Audio File:",bg='#FFFFFF', fg='#69686D', font=('Helvetica', 9, 'bold'))
+        time_elapsed_label.grid(row=1, column=1)
+        self.time_elapsed_entry = tk.Entry(self.calculator_window, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
+        self.time_elapsed_entry.grid(row=1, column=2)
+        self.time_elapsed_entry.insert(0,"e.g. 01:42:36")
+        first_transcript_time = tk.Label(self.calculator_window, text="First Timestamp in Transcript:",bg='#FFFFFF', fg='#69686D', font=('Helvetica', 9, 'bold'))
+        first_transcript_time.grid(row=1, column=3)
+        self.first_transcript_time_entry = tk.Entry(self.calculator_window, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
+        self.first_transcript_time_entry.grid(row=1, column=4)
+        self.first_transcript_time_entry.insert(0,"e.g. 10:30:00")
+
+        self.time_elapsed_entry.bind("<FocusIn>", self.time_elapsed_click)
+        self.time_elapsed_entry.bind("<FocusOut>", self.time_elapsed_out_focus)
+        self.first_transcript_time_entry.bind("<FocusIn>", self.first_transcript_time_click)
+        self.first_transcript_time_entry.bind("<FocusOut>", self.first_transcript_time_out_focus)
+
+        convert_canvas = Canvas(self.calculator_window, bg='#FFFFFF', bd=0, highlightthickness=0, height=70)
+        convert_canvas.grid(row=2, column=1, columnspan=4, sticky=NSEW, pady=(5))
+        self.convert_button = tk.PhotoImage(file=r'gui_element_graphics\buttons\Convert.png')
+        convert_button = tk.Button(self.calculator_window, image=self.convert_button, command=self.calculator_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
+        convert_canvas.create_window(275, 0, anchor=NW, window=convert_button)
+
+        calculator_window.mainloop()
+
+    def calculator_start(self, *event):
+        transcript_Time = self.first_transcript_time_entry.get()
+        time_to_subtract = self.time_elapsed_entry.get()
+
+        time_subtract_hour, time_subtract_minute, time_subtract_second = time_to_subtract.split(":")
+        self.time_subtract = int(time_subtract_hour)*3600 + int(time_subtract_minute)*60 + int(time_subtract_second)
+
+        transcript_hour, transcript_minute, transcript_second = transcript_Time.split(":")
+        self.transcript_time = int(transcript_hour)*3600 + int(transcript_minute)*60 + int(transcript_second)
+
+        calc = float(self.transcript_time) - float(self.time_subtract)
+        new_time = time.strftime('%H:%M:%S', time.gmtime(calc))
+
+        self.recording_start_time.delete(0, END)
+        self.recording_start_time.insert(0, new_time)
+
+        self.calculator_window.destroy()
+        self.calculator_window.update()
+
+    def time_elapsed_click(self, event):
+        if self.time_elapsed_entry.get() == "e.g. 01:42:36":
+            self.time_elapsed_entry.delete(0, "end")
+
+    def time_elapsed_out_focus(self, event):
+        if self.time_elapsed_entry.get() == "":
+            self.time_elapsed_entry.insert(0, "e.g. 01:42:36")
+
+    def first_transcript_time_click(self, event):
+        if self.first_transcript_time_entry.get() == "e.g. 10:30:00":
+            self.first_transcript_time_entry.delete(0, "end")
+
+    def first_transcript_time_out_focus(self, event):
+        if self.first_transcript_time_entry.get() == "":
+            self.first_transcript_time_entry.insert(0, "e.g. 10:30:00")
 
 if __name__ == "__main__":
     root = tk.Tk()
+
     audio_window = Audio_Manager(root)
 
     originalAudio = " "
@@ -403,7 +562,7 @@ if __name__ == "__main__":
     segmentEnd = " "
     filePrefix = " "
 
-    epoch_time = 0
+    nano_seconds = 0
     converted_time = 0
 
     root.mainloop()
