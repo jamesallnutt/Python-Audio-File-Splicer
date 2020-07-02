@@ -53,20 +53,20 @@ class Audio_Manager:
         app_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         app_logo.grid(row=1, column=1, padx=13, pady=5)
 
-        self.twitter_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/twitter_logo.png')
-        twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
-        twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        twitter_button.grid(row=2, column=1, padx=13, pady=(245,0))
+        #self.twitter_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/twitter_logo.png')
+        #twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
+        #twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+        #twitter_button.grid(row=2, column=1, padx=13, pady=(245,0))
 
         self.github_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/github_logo.png')
         github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=30, command=self.open_github)
         github_button.configure(fg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        github_button.grid(row=3, column=1, padx=13, pady=(4,7))
+        github_button.grid(row=2, column=1, padx=13, pady=(270,7))
 
         self.help_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/help_logo.png')
         help_button = tk.Button(self.social_frame, image=self.help_logo, width=31, height=31)
         help_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        help_button.grid(row=4, column=1, padx=13)
+        help_button.grid(row=3, column=1, padx=13)
 
     def project_management_headers(self):
         self.save_management = tk.Frame(self.audio_window, bg='#F6F6F6', width=226, height=400)
