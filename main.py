@@ -26,11 +26,12 @@ import json
 from progressBar import progress_bar_percent #progress_bar_percent is the name of our load bar progress percentage on GUI
 from audioControls import play_beginning, play_end #these are the subprocess calls for ffplay to run playback
 
+
 class Audio_Manager:
     def __init__(self, audio_window):
         self.audio_window = audio_window
         self.audio_window.title("Audio Production Tool Set")
-        self.audio_window.iconbitmap(r'gui_element_graphics\app_icon.ico')
+        self.audio_window.iconbitmap(resource_path("app_icon.ico"))
         self.audio_window.maxsize(670,400)
         self.audio_window.minsize(670,400)
         self.audio_window.configure(bg='#625772')
@@ -43,30 +44,31 @@ class Audio_Manager:
         self.key_bindings()
         self.load_previous_projects_on_launch()
 
+
     def social_media(self):
         self.social_frame = tk.Frame(self.audio_window, bg='#625772', width=61, height=400)
         self.social_frame.grid(row=0, column=0)
         self.social_frame.grid_propagate(False)
 
-        self.app_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/audio_logo.png')
+        self.app_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\audio_logo.png"))
         app_logo = tk.Button(self.social_frame, image=self.app_logo, width=30, height=30)
         app_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         app_logo.grid(row=1, column=1, padx=13, pady=5)
 
-        #self.twitter_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/twitter_logo.png')
-        #twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
-        #twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        #twitter_button.grid(row=2, column=1, padx=13, pady=(245,0))
+        self.twitter_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/twitter_logo.png')
+        twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
+        twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+        twitter_button.grid(row=2, column=1, padx=13, pady=(245,0))
 
-        self.github_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/github_logo.png')
+        self.github_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\github_logo.png"))
         github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=30, command=self.open_github)
         github_button.configure(fg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        github_button.grid(row=2, column=1, padx=13, pady=(270,7))
+        github_button.grid(row=3, column=1, padx=13, pady=(7,7))
 
-        self.help_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/help_logo.png')
+        self.help_logo = tk.PhotoImage(file=resource_path('gui_element_graphics\\sidebar\\help_logo.png'))
         help_button = tk.Button(self.social_frame, image=self.help_logo, width=31, height=31)
         help_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        help_button.grid(row=3, column=1, padx=13)
+        help_button.grid(row=4, column=1, padx=13)
 
     def project_management_headers(self):
         self.save_management = tk.Frame(self.audio_window, bg='#F6F6F6', width=226, height=400)
@@ -83,7 +85,7 @@ class Audio_Manager:
         self.project_info.grid(row=4, column=1, columnspan=2, rowspan=1)
         self.project_info.grid_propagate(True)
 
-        self.current_header_bg = tk.PhotoImage(file=r'gui_element_graphics\project_headers\pink_header.png')
+        self.current_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\pink_header.png'))
         self.current_header_bg = self.current_header_bg.subsample(5,4)
         current_project_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
         current_project_header_canvas = Canvas(self.project_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
@@ -98,11 +100,11 @@ class Audio_Manager:
         current_project_date_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
         current_project_recording_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
 
-        self.plus_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
+        self.plus_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\add_new.png'))
         save_button = tk.Button(self.save_management, image=self.plus_button, command=self.click_save_project)
         save_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
 
-        self.project_background = tk.PhotoImage(file=r'gui_element_graphics\panels\save_panels.png')
+        self.project_background = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\save_panels.png'))
         current_project_canvas = Canvas(self.project_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
         current_project_canvas.grid(row=1, column=0, sticky=NSEW)
         current_project_canvas.create_image(5, 0, anchor=NW, image=self.project_background)
@@ -114,7 +116,7 @@ class Audio_Manager:
         current_project_canvas.create_window(100, 55, anchor=NW, window=current_project_recording_entry)
         current_project_canvas.create_window(200, 0, anchor=NW, window=save_button)
 
-        self.past_header_bg = tk.PhotoImage(file=r'gui_element_graphics\project_headers\purple_header.png')
+        self.past_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\purple_header.png'))
         self.past_header_bg = self.past_header_bg.subsample(5,4)
         past_project_header = tk.Label(text="Last Edits", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
         past_project_header_canvas = Canvas(self.project_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
@@ -175,7 +177,7 @@ class Audio_Manager:
         browse = tk.Label(text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
         editing_header = tk.Label(text="Export Options", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
 
-        self.tools_canvas_image = tk.PhotoImage(file=r'gui_element_graphics\panels\project_tools.png')
+        self.tools_canvas_image = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\project_tools.png'))
 
         tools_canvas = Canvas(self.current_audio_project, bg='#F6F6F6', bd=0, highlightthickness=0, height=340)
         tools_canvas.grid(row=1, column=1, columnspan=2, sticky=NSEW, pady=(10,0))
@@ -190,7 +192,7 @@ class Audio_Manager:
 
         self.current_fp_background = tk.Label(bg='#F6F6F6', width=35)
         self.current_file_path = tk.Label(text="Click To Add Audio", bg='#FFFFFF', fg='#69686D', borderwidth=1, width=35)
-        self.current_file_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/add_new.png')
+        self.current_file_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\add_new.png'))
         current_file_button = tk.Button(image=self.current_file_button, width=17, command=self.click_browse, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
   
         recordingDateLabel = tk.Label(self.current_audio_project, text="Sitting Date", bg='#FFFFFF', fg='#69686D')
@@ -205,24 +207,24 @@ class Audio_Manager:
         self.recording_start_bound = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_start_bound.insert(0, "e.g. 10:03:00")
 
-        self.play_start = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
+        self.play_start = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\play.png'))
         recording_start_bound_play = tk.Button(self.current_audio_project, image=self.play_start, height=15, width=17, command=self.click_play_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
         audioChunkEndTime = tk.Label(self.current_audio_project, text="End Boundary", bg='#FFFFFF', fg='#69686D')
         self.recording_end_bound = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_end_bound.insert(0, "e.g. 12:30:21")
 
-        self.play_end = tk.PhotoImage(file=r'gui_element_graphics/buttons/play.png')
+        self.play_end = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\play.png'))
         recording_end_bound_play = tk.Button(self.current_audio_project, image=self.play_end, height=15, width=17, command=self.click_play_end, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
         audioFileNamePrefix = tk.Label(self.current_audio_project, text="Filename Prefix", bg='#FFFFFF', fg='#69686D')
         self.recording_file_prefix = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_file_prefix.insert(0, "e.g. EventName")
 
-        self.export_button = tk.PhotoImage(file=r'gui_element_graphics/buttons/export.png')
+        self.export_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\export.png'))
         export = tk.Button(self.current_audio_project, image=self.export_button, command=self.click_save, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
-        self.reset_button = tk.PhotoImage(file=r'gui_element_graphics\buttons\reset.png')
+        self.reset_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\reset.png'))
         reset = tk.Button(self.current_audio_project, image=self.reset_button, command=self.click_reset, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
         tools_canvas.create_window(26, 74, anchor=NW, window=self.current_fp_background)
@@ -355,7 +357,8 @@ class Audio_Manager:
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
 
         actual_start_segment = float(self.start_segment_time_calc) - float(self.start_time_calc)
-        command_play = ['C:\\Program Files\\ffmpeg\\bin\\ffplay.exe', originalAudio, "-ss", str(actual_start_segment), "-t", "10", "-nodisp", "-autoexit"]
+        ffplay_path = resource_path("ffplay.exe")
+        command_play = [ffplay_path, originalAudio, "-ss", str(actual_start_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_beginning(command_play)).start()
 
     def click_play_end(self, *event):
@@ -369,8 +372,8 @@ class Audio_Manager:
 
         end_segment = float(self.end_time_calc) - float(self.start_time_calc)
         actual_end_segment = float(end_segment) - 10 #taking away 10 seconds from end segment
-        
-        command_play = ['C:\\Program Files\\ffmpeg\\bin\\ffplay.exe', originalAudio, "-ss", str(actual_end_segment), "-t", "10", "-nodisp", "-autoexit"]
+        ffplay_path = resource_path("ffplay.exe")
+        command_play = [ffplay_path, originalAudio, "-ss", str(actual_end_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_end(command_play)).start()
 
     def click_reset(self, *event):
@@ -475,7 +478,7 @@ class Audio_Manager:
         calculator_window = Toplevel(root)
         self.calculator_window = calculator_window
         self.calculator_window.title("Timestamp Calculator")
-        self.calculator_window.iconbitmap(r'gui_element_graphics\app_icon.ico')
+        self.calculator_window.iconbitmap(resource_path("app_icon.ico"))
         self.calculator_window.configure(bg='#FFFFFF')
 
         tutorial = tk.Text(self.calculator_window, height=7, bg='#FFFFFF', highlightthickness=0, bd=0)
@@ -509,7 +512,7 @@ class Audio_Manager:
 
         convert_canvas = Canvas(self.calculator_window, bg='#FFFFFF', bd=0, highlightthickness=0, height=70)
         convert_canvas.grid(row=2, column=1, columnspan=4, sticky=NSEW, pady=(5))
-        self.convert_button = tk.PhotoImage(file=r'gui_element_graphics\buttons\Convert.png')
+        self.convert_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\Convert.png'))
         convert_button = tk.Button(self.calculator_window, image=self.convert_button, command=self.calculator_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         convert_canvas.create_window(275, 0, anchor=NW, window=convert_button)
 
@@ -550,11 +553,15 @@ class Audio_Manager:
         if self.first_transcript_time_entry.get() == "":
             self.first_transcript_time_entry.insert(0, "e.g. 10:30:00")
 
+
 if __name__ == "__main__":
     root = tk.Tk()
+    def resource_path(relative_path):
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, relative_path)
 
     audio_window = Audio_Manager(root)
-
+    
     originalAudio = " "
     sittingDate = " "
     startTime = " "
