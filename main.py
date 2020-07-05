@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import ttk #Secondary Tkinter Module which includes Progress Bar
 from threading import Thread #Module that allows Threading
 from ttkthemes import ThemedTk
+from PIL import Image, ImageTk
 from queue import Queue, Empty
 from subprocess import Popen, PIPE, run #Module that allows running OS Processes
 from functools import reduce
@@ -27,52 +28,78 @@ from progressBar import progress_bar_percent #progress_bar_percent is the name o
 from audioControls import play_beginning, play_end #these are the subprocess calls for ffplay to run playback
 
 
-class Audio_Manager:
-    def __init__(self, audio_window):
-        self.audio_window = audio_window
-        self.audio_window.title("Audio Production Tool Set")
-        self.audio_window.iconbitmap(resource_path("app_icon.ico"))
-        self.audio_window.maxsize(670,400)
-        self.audio_window.minsize(670,400)
-        self.audio_window.configure(bg='#625772')
+class Production_Tools:
+    def __init__(self, main_window):
+        self.main_window = main_window
+        self.main_window.title("Audio Production Tool Set")
+        self.main_window.iconbitmap(resource_path("app_icon.ico"))
+        self.main_window.maxsize(690,400)
+        self.main_window.minsize(690,400)
+        self.main_window.configure(bg='#625772')
 
-        self.social_media()
+        self.tab_management()
+        self.file_page()
+        self.audio_page()
+        self.sidebar()
         self.project_management_headers()
         self.project_management()
         self.current_project_headers()
         self.current_project_tools()
+        self.files_job_management()
+        self.project_file_management()
+        self.current_project_file_headers()
         self.key_bindings()
         self.load_previous_projects_on_launch()
 
+        self.notebook_test = ttk.Notebook(self.tab_frame)
+        self.notebook_test.add(self.audio_tool_page)
+        self.notebook_test.add(self.file_tool_page)
+        self.notebook_test.grid(row=0,column=0)
 
-    def social_media(self):
-        self.social_frame = tk.Frame(self.audio_window, bg='#625772', width=61, height=400)
+    def tab_management(self):
+        self.tab_frame = tk.Frame(self.main_window, bg='#625772')
+        self.tab_frame.grid(row=0,column=1)
+        self.tab_frame.grid_propagate(True)
+
+    def audio_page(self):
+        self.audio_tool_page = tk.Frame()
+        self.audio_tool_page.grid(row=0, column=0)
+        self.audio_tool_page.grid_propagate(True)
+    
+    def file_page(self):
+        self.file_tool_page = tk.Frame()
+        self.file_tool_page.grid(row=0, column=1)
+
+    def sidebar(self):
+        self.social_frame = tk.Frame(self.main_window, bg='#625772', width=50, height=400)
         self.social_frame.grid(row=0, column=0)
         self.social_frame.grid_propagate(False)
 
         self.app_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\audio_logo.png"))
         app_logo = tk.Button(self.social_frame, image=self.app_logo, width=30, height=30)
         app_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        app_logo.grid(row=1, column=1, padx=13, pady=5)
+        app_logo.grid(row=0, column=0, padx=13, pady=5)
 
-        self.twitter_logo = tk.PhotoImage(file=r'gui_element_graphics/sidebar/twitter_logo.png')
+        self.twitter_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\twitter_logo.png"))
         twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
         twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        twitter_button.grid(row=2, column=1, padx=13, pady=(245,0))
+        twitter_button.grid(row=1, column=0, padx=13, pady=(245,0))
 
         self.github_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\github_logo.png"))
         github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=30, command=self.open_github)
         github_button.configure(fg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        github_button.grid(row=3, column=1, padx=13, pady=(7,7))
+        github_button.grid(row=2, column=0, padx=13, pady=(7,7))
 
         self.help_logo = tk.PhotoImage(file=resource_path('gui_element_graphics\\sidebar\\help_logo.png'))
         help_button = tk.Button(self.social_frame, image=self.help_logo, width=31, height=31)
         help_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        help_button.grid(row=4, column=1, padx=13)
+        help_button.grid(row=3, column=0, padx=13)
+
+#Audio Management Tool
 
     def project_management_headers(self):
-        self.save_management = tk.Frame(self.audio_window, bg='#F6F6F6', width=226, height=400)
-        self.save_management.grid(row=0, column=1)
+        self.save_management = tk.Frame(self.audio_tool_page, bg='#F6F6F6', width=226, height=400)
+        self.save_management.grid(row=0, column=0)
         self.save_management.grid_propagate(False)
 
         header = tk.Label(self.save_management, text="Audio Projects", bg='#F6F6F6', fg='#69686D', font=('Helvetica', 12, 'bold'))
@@ -169,8 +196,8 @@ class Audio_Manager:
     def current_project_headers(self):
         global tools_canvas
 
-        self.current_audio_project = tk.Frame(self.audio_window, bg='#F6F6F6', height=400, width=462)
-        self.current_audio_project.grid(row=0, column=2)
+        self.current_audio_project = tk.Frame(self.audio_tool_page, bg='#F6F6F6', height=400, width=462)
+        self.current_audio_project.grid(row=0, column=1)
         self.current_audio_project.grid_propagate(False)
 
         project_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
@@ -471,7 +498,7 @@ class Audio_Manager:
                 past_2_project_recording_entry.configure(text=load_project_1[6])
 
     def show_timecode_calculator(self, _class):
-        self.new = tk.Toplevel(self.audio_window)
+        self.new = tk.Toplevel(self.main_window)
         _class(self.new)
 
     def open_calculator(self):
@@ -553,6 +580,120 @@ class Audio_Manager:
         if self.first_transcript_time_entry.get() == "":
             self.first_transcript_time_entry.insert(0, "e.g. 10:30:00")
 
+# File Management Tool
+
+    def files_job_management(self):
+        self.save_file_management = tk.Frame(self.file_tool_page, bg='#F6F6F6', width=226, height=400)
+        self.save_file_management.grid(row=0, column=0)
+        self.save_file_management.grid_propagate(False)
+
+        file_header = tk.Label(self.save_file_management, text="Document Projects", bg='#F6F6F6', fg='#69686D', font=('Helvetica', 12, 'bold'))
+        file_header.grid(row=1, column=1, padx=(5,0), pady=(15), sticky=W)
+
+    def project_file_management(self):
+        global current_project_title_entry, current_project_recording_entry, current_project_date_entry, past_project_title_entry, past_project_date_entry, past_project_recording_entry, past_2_project_title_entry, past_2_project_date_entry, past_2_project_recording_entry
+
+        self.project_file_info = tk.Frame(self.save_file_management)
+        self.project_file_info.grid(row=4, column=1, columnspan=2, rowspan=1)
+        self.project_file_info.grid_propagate(True)
+
+        self.current_file_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\pink_header.png'))
+        self.current_file_header_bg = self.current_file_header_bg.subsample(5,4)
+        current_project_file_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
+        current_project_file_header_canvas = Canvas(self.project_file_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
+        current_project_file_header_canvas.grid(row=0, column=0, rowspan=1, sticky=NSEW)
+        current_project_file_header_canvas.create_image(5, 0, anchor=NW, image=self.current_file_header_bg)
+        current_project_file_header_canvas.create_window(20, 0, anchor=NW, window=current_project_file_header)
+
+        current_project_file_title = tk.Label(text="Original File:", fg='#69686D', bg='#FFFFFF')
+        current_project_file_date = tk.Label(text='Date:', fg='#69686D', bg='#FFFFFF')
+        current_project_file_recording = tk.Label(text='Start Time:', fg='#69686D', bg='#FFFFFF')
+        current_project_file_title_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
+        current_project_file_date_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
+        current_project_file_recording_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
+
+        self.plus_file_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\add_new.png'))
+        file_save_button = tk.Button(self.save_file_management, image=self.plus_file_button)
+        file_save_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+
+        self.file_project_background = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\save_panels.png'))
+        current_project_file_canvas = Canvas(self.project_file_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
+        current_project_file_canvas.grid(row=1, column=0, sticky=NSEW)
+        current_project_file_canvas.create_image(5, 0, anchor=NW, image=self.file_project_background)
+        current_project_file_canvas.create_window(25, 15, anchor=NW, window=current_project_file_title)
+        current_project_file_canvas.create_window(25, 35, anchor=NW, window=current_project_file_date)
+        current_project_file_canvas.create_window(25, 55, anchor=NW, window=current_project_file_recording)
+        current_project_file_canvas.create_window(100, 15, anchor=NW, window=current_project_file_title_entry)
+        current_project_file_canvas.create_window(100, 35, anchor=NW, window=current_project_file_date_entry)
+        current_project_file_canvas.create_window(100, 55, anchor=NW, window=current_project_file_recording_entry)
+        current_project_file_canvas.create_window(200, 0, anchor=NW, window=file_save_button)
+
+        self.file_past_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\purple_header.png'))
+        self.file_past_header_bg = self.file_past_header_bg.subsample(5,4)
+        past_file_project_header = tk.Label(text="Last Edits", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
+        past_file_project_header_canvas = Canvas(self.project_file_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
+        past_file_project_header_canvas.grid(row=2, column=0, rowspan=1, sticky=NSEW)
+        past_file_project_header_canvas.create_image(5, 0, anchor=NW, image=self.file_past_header_bg)
+        past_file_project_header_canvas.create_window(15, 0, anchor=NW, window=past_file_project_header)
+
+        past_file_project_title = tk.Label(text="Original File:", fg='#69686D', bg='#FFFFFF')
+        past_file_project_date = tk.Label(text='Date:', fg='#69686D', bg='#FFFFFF')
+        past_file_project_recording = tk.Label(text='Start Time:', fg='#69686D', bg='#FFFFFF')
+        past_file_project_title_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_file_project_date_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_file_project_recording_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+
+        load_file_button = tk.Button(self.project_file_info, image=self.plus_button)
+        load_file_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+
+        past_file_project_canvas = Canvas(self.project_file_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
+        past_file_project_canvas.grid(row=3, column=0, sticky=NSEW)
+        past_file_project_canvas.create_image(5, 0, anchor=NW, image=self.file_project_background)
+        past_file_project_canvas.create_window(25, 15, anchor=NW, window=past_file_project_title)
+        past_file_project_canvas.create_window(25, 35, anchor=NW, window=past_file_project_date)
+        past_file_project_canvas.create_window(25, 55, anchor=NW, window=past_file_project_recording)
+        past_file_project_canvas.create_window(100, 15, anchor=NW, window=past_file_project_title_entry)
+        past_file_project_canvas.create_window(100, 35, anchor=NW, window=past_file_project_date_entry)
+        past_file_project_canvas.create_window(100, 55, anchor=NW, window=past_file_project_recording_entry)
+        past_file_project_canvas.create_window(200, 0, anchor=NW, window=load_file_button)
+
+        past_file_2_project_title = tk.Label(text="Original File:", fg='#69686D', bg='#FFFFFF')
+        past_file_2_project_date = tk.Label(text='Date:', fg='#69686D', bg='#FFFFFF')
+        past_file_2_project_recording = tk.Label(text='Start Time:', fg='#69686D', bg='#FFFFFF')
+        past_file_2_project_title_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_file_2_project_date_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+        past_file_2_project_recording_entry = tk.Label(text="No Save Set", fg='#69686D', bg='#FFFFFF')
+
+        load_file_2_button = tk.Button(self.project_file_info, image=self.plus_button)
+        load_file_2_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+
+        past_file_2_project_canvas = Canvas(self.project_file_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
+        past_file_2_project_canvas.grid(row=4, column=0, sticky=NSEW)
+        past_file_2_project_canvas.create_image(5, 0, anchor=NW, image=self.file_project_background)
+        past_file_2_project_canvas.create_window(25, 15, anchor=NW, window=past_file_2_project_title)
+        past_file_2_project_canvas.create_window(25, 35, anchor=NW, window=past_file_2_project_date)
+        past_file_2_project_canvas.create_window(25, 55, anchor=NW, window=past_file_2_project_recording)
+        past_file_2_project_canvas.create_window(100, 15, anchor=NW, window=past_file_2_project_title_entry)
+        past_file_2_project_canvas.create_window(100, 35, anchor=NW, window=past_file_2_project_date_entry)
+        past_file_2_project_canvas.create_window(100, 55, anchor=NW, window=past_file_2_project_recording_entry)
+        past_file_2_project_canvas.create_window(200, 0, anchor=NW, window=load_file_2_button)
+
+    def current_project_file_headers(self):
+        global file_tools_canvas
+
+        self.current_file_project = tk.Frame(self.file_tool_page, bg='#F6F6F6', height=400, width=462)
+        self.current_file_project.grid(row=0, column=1)
+        self.current_file_project.grid_propagate(False)
+
+        project_file_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
+
+        self.file_tools_canvas_image = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\project_tools.png'))
+
+        file_tools_canvas = Canvas(self.current_file_project, bg='#F6F6F6', bd=0, highlightthickness=0, height=340)
+        file_tools_canvas.grid(row=1, column=1, columnspan=2, sticky=NSEW, pady=(10,0))
+        file_tools_canvas.create_image(10, 0, anchor=NW, image=self.file_tools_canvas_image)
+        file_tools_canvas.create_image(27, 15, anchor=NW, image=self.current_header_bg)
+        file_tools_canvas.create_window(42, 15, anchor=NW, window=project_file_header)
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -560,8 +701,22 @@ if __name__ == "__main__":
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
 
-    audio_window = Audio_Manager(root)
+    main_window = Production_Tools(root)
+
+    maincolour = '#625772'
+    secondarycolour = '#F6F6F6'
+    highlightcolour = '#FFFFFF'
+    selectcolour = '#A9EEE6'
     
+    style = ttk.Style(root)
+    style.theme_create("ProductionToolsTheme", settings={
+            "TNotebook": {"configure": {"tabposition": 'wn', "background": maincolour, "tabmargins": [0, 5, 0, 40]}, "borderwidth": 0 },
+            "TNotebook.Tab": {
+                "configure": {"background": maincolour, "padding": [0,10]},
+                "map":       {"background": [("selected", selectcolour)],
+                             } } } )
+    style.theme_use('ProductionToolsTheme')
+
     originalAudio = " "
     sittingDate = " "
     startTime = " "
