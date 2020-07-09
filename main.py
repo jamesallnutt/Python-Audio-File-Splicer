@@ -27,8 +27,7 @@ import json
 from progressBar import progress_bar_percent #progress_bar_percent is the name of our load bar progress percentage on GUI
 from audioControls import play_beginning, play_end #these are the subprocess calls for ffplay to run playback
 
-
-class Production_Tools:
+class Production_Tools():
     def __init__(self, main_window):
         self.main_window = main_window
         self.main_window.title("Audio Production Tool Set")
@@ -41,6 +40,12 @@ class Production_Tools:
         self.file_page()
         self.audio_page()
         self.sidebar()
+
+        self.tab_creation = ttk.Notebook(self.tab_frame)
+        self.tab_creation.add(self.audio_tool_page)
+        self.tab_creation.add(self.file_tool_page)
+        self.tab_creation.grid(row=0,column=0)
+
         self.project_management_headers()
         self.project_management()
         self.current_project_headers()
@@ -50,16 +55,26 @@ class Production_Tools:
         self.current_project_file_headers()
         self.key_bindings()
         self.load_previous_projects_on_launch()
+        self.transcriptProductionConfig()
 
-        self.notebook_test = ttk.Notebook(self.tab_frame)
-        self.notebook_test.add(self.audio_tool_page)
-        self.notebook_test.add(self.file_tool_page)
-        self.notebook_test.grid(row=0,column=0)
+
+        self.selected_tab = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\selected_tab.png"))
+        self.selected_tab_icon = tk.Label(self.social_frame, image=self.selected_tab, width=6, height=40)
+        self.selected_tab_icon.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
+        self.selected_tab_icon.grid(row=0, column=0, sticky=SW)
 
     def tab_management(self):
         self.tab_frame = tk.Frame(self.main_window, bg='#625772')
-        self.tab_frame.grid(row=0,column=1)
+        self.tab_frame.grid(row=0,column=0, padx=(35,0))
         self.tab_frame.grid_propagate(True)
+
+    def tab_nav_1(self):
+        self.tab_creation.select(self.audio_tool_page)
+        self.selected_tab_icon.grid(row=0, column=0, sticky=SW)
+
+    def tab_nav_2(self):
+        self.tab_creation.select(self.file_tool_page)
+        self.selected_tab_icon.grid(row=1, column=0, sticky=SW)
 
     def audio_page(self):
         self.audio_tool_page = tk.Frame()
@@ -68,32 +83,37 @@ class Production_Tools:
     
     def file_page(self):
         self.file_tool_page = tk.Frame()
-        self.file_tool_page.grid(row=0, column=1)
+        self.file_tool_page.grid(row=0, column=0)
 
     def sidebar(self):
         self.social_frame = tk.Frame(self.main_window, bg='#625772', width=50, height=400)
-        self.social_frame.grid(row=0, column=0)
+        self.social_frame.grid(row=0, column=0, sticky=NW)
         self.social_frame.grid_propagate(False)
 
-        self.app_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\audio_logo.png"))
-        app_logo = tk.Button(self.social_frame, image=self.app_logo, width=30, height=30)
-        app_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        app_logo.grid(row=0, column=0, padx=13, pady=5)
+        self.audio_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\icon_audio.png"))
+        audio_logo = tk.Button(self.social_frame, image=self.audio_logo, width=30, height=40)
+        audio_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.tab_nav_1)
+        audio_logo.grid(row=0, column=1, padx=10, pady=5, sticky=W)
+        
+        self.file_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\icon_file.png"))
+        file_logo = tk.Button(self.social_frame, image=self.file_logo, width=30, height=40)
+        file_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.tab_nav_2)
+        file_logo.grid(row=1, column=1, padx=10, pady=5, sticky=W)
 
         self.twitter_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\twitter_logo.png"))
         twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
         twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        twitter_button.grid(row=1, column=0, padx=13, pady=(245,0))
+        twitter_button.grid(row=2, column=1, padx=10, pady=(190,0), sticky=SW)
 
         self.github_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\github_logo.png"))
         github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=30, command=self.open_github)
         github_button.configure(fg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        github_button.grid(row=2, column=0, padx=13, pady=(7,7))
+        github_button.grid(row=3, column=1, padx=10, pady=(5,9), sticky=SW)
 
         self.help_logo = tk.PhotoImage(file=resource_path('gui_element_graphics\\sidebar\\help_logo.png'))
         help_button = tk.Button(self.social_frame, image=self.help_logo, width=31, height=31)
         help_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        help_button.grid(row=3, column=0, padx=13)
+        help_button.grid(row=4, column=1, padx=10, sticky=SW)
 
 #Audio Management Tool
 
@@ -280,7 +300,8 @@ class Production_Tools:
         tools_canvas.create_window(322, 287, anchor=NW, window=export)
         tools_canvas.create_window(26, 287, anchor=NW, window=reset)
 
-        progress = ttk.Progressbar(self.current_audio_project, orient = HORIZONTAL, length = 20)
+        
+        progress = ttk.Progressbar(self.current_audio_project, orient = HORIZONTAL, length = 20, style='Horizontal.TProgressbar')
         progress.config(mode='determinate', maximum=99.99, value=0)
         progress.grid(row=2, column=1, columnspan=2, sticky='nwe', padx=(20,8), pady=(10,0))
 
@@ -384,7 +405,7 @@ class Production_Tools:
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
 
         actual_start_segment = float(self.start_segment_time_calc) - float(self.start_time_calc)
-        ffplay_path = resource_path("ffplay.exe")
+        ffplay_path = resource_path("tools\\ffplay.exe")
         command_play = [ffplay_path, originalAudio, "-ss", str(actual_start_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_beginning(command_play)).start()
 
@@ -399,7 +420,7 @@ class Production_Tools:
 
         end_segment = float(self.end_time_calc) - float(self.start_time_calc)
         actual_end_segment = float(end_segment) - 10 #taking away 10 seconds from end segment
-        ffplay_path = resource_path("ffplay.exe")
+        ffplay_path = resource_path("tools\\ffplay.exe")
         command_play = [ffplay_path, originalAudio, "-ss", str(actual_end_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_end(command_play)).start()
 
@@ -679,7 +700,7 @@ class Production_Tools:
         past_file_2_project_canvas.create_window(200, 0, anchor=NW, window=load_file_2_button)
 
     def current_project_file_headers(self):
-        global file_tools_canvas
+        global tPC_canvas
 
         self.current_file_project = tk.Frame(self.file_tool_page, bg='#F6F6F6', height=400, width=462)
         self.current_file_project.grid(row=0, column=1)
@@ -687,13 +708,55 @@ class Production_Tools:
 
         project_file_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
 
-        self.file_tools_canvas_image = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\project_tools.png'))
+        self.tPC_canvas_image = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\files_background.png'))
 
-        file_tools_canvas = Canvas(self.current_file_project, bg='#F6F6F6', bd=0, highlightthickness=0, height=340)
-        file_tools_canvas.grid(row=1, column=1, columnspan=2, sticky=NSEW, pady=(10,0))
-        file_tools_canvas.create_image(10, 0, anchor=NW, image=self.file_tools_canvas_image)
-        file_tools_canvas.create_image(27, 15, anchor=NW, image=self.current_header_bg)
-        file_tools_canvas.create_window(42, 15, anchor=NW, window=project_file_header)
+        tPC_canvas = Canvas(self.current_file_project, bg='#F6F6F6', bd=0, highlightthickness=0, height=390)
+        tPC_canvas.grid(row=1, column=1, columnspan=2, sticky=NSEW, pady=(10,0))
+        tPC_canvas.create_image(10, 0, anchor=NW, image=self.tPC_canvas_image)
+        tPC_canvas.create_image(27, 15, anchor=NW, image=self.current_header_bg)
+        tPC_canvas.create_window(42, 15, anchor=NW, window=project_file_header)
+
+    def transcriptProductionConfig(self):
+        global tPC_canvas
+
+        #HeaderLabels
+        tPC_browseTranscriptLabel = tk.Label(text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
+        tPC_pageSetupLabel = tk.Label(text="Page Setup", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
+        tPC_headerandFootersLabel = tk.Label(text="Headers and Footers", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
+
+        #HeaderLabels on Canvas
+        tPC_canvas.create_window(27, 50, anchor=NW, window=tPC_browseTranscriptLabel)
+        tPC_canvas.create_window(27, 100, anchor=NW, window=tPC_pageSetupLabel)
+        tPC_canvas.create_window(27, 200, anchor=NW, window=tPC_headerandFootersLabel)
+
+        #User Inputs
+        tPC_filePrefix = tk.Entry(bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
+        tPC_filePrefix.insert(0, "Filename Prefix")
+
+        tPC_coverPage = tk.Entry(bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
+        tPC_coverPage.insert(0, "Cover Page")
+
+        tPC_fullPageFormat = tk.Button(text="Full Page",bg='#FFFFFF', fg='#69686D')
+        tPC_condensedPageFormat = tk.Button(text="4x4 Pages",bg='#FFFFFF', fg='#69686D')
+
+        tPC_headerLeft = tk.Text(width=15, height=2)
+        tPC_headerCenter = tk.Text(width=15, height=2)
+        tPC_headerRight = tk.Text(width=15, height=2)
+
+        tPC_footerLeft = tk.Text(width=15, height=2)
+        tPC_footerCenter = tk.Text(width=15, height=2)
+        tPC_footerRight = tk.Text(width=15, height=2)
+
+        #User Inputs on Canvas
+        tPC_canvas.create_window(27, 140, anchor=NW, window=tPC_filePrefix)
+        tPC_canvas.create_window(27, 170, anchor=NW, window=tPC_coverPage)
+        tPC_canvas.create_window(210, 150, anchor=NW, window=tPC_fullPageFormat)
+        tPC_canvas.create_window(270, 150, anchor=NW, window=tPC_condensedPageFormat)
+
+        
+
+
+
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -709,13 +772,21 @@ if __name__ == "__main__":
     selectcolour = '#A9EEE6'
     
     style = ttk.Style(root)
-    style.theme_create("ProductionToolsTheme", settings={
-            "TNotebook": {"configure": {"tabposition": 'wn', "background": maincolour, "tabmargins": [0, 5, 0, 40]}, "borderwidth": 0 },
-            "TNotebook.Tab": {
-                "configure": {"background": maincolour, "padding": [0,10]},
-                "map":       {"background": [("selected", selectcolour)],
-                             } } } )
-    style.theme_use('ProductionToolsTheme')
+    # Import the Notebook.tab element from the default theme
+    style.element_create('Plain.Notebook.tab', "from", 'default')
+    # Redefine the TNotebook Tab layout to use the new element
+    #style.layout("TNotebook.Tab",
+     #   [('Plain.Notebook.tab', {'children':
+      #      [('Notebook.padding', {'side': 'top', 'children':
+       #         [('Notebook.focus', {'side': 'top', 'children':
+        #            [('Notebook.label', {'side': 'top', 'sticky': ''})],
+         #       'sticky': 'nswe'})],
+          #  'sticky': 'nswe'})],
+        # 'sticky': 'nswe'})])
+    style.layout("TNotebook.Tab", [])
+    style.configure("TNotebook",tabposition='wn',background=maincolour,tabmargins=(0, 0, 0, 0),borderwidth=0, bordercolour=maincolour)
+    #style.configure("TNotebook.Tab",[]) background=maincolour, padding=(0,10), sticky='e')
+    style.map("TNotebook.Tab", background=[('selected',highlightcolour)])
 
     originalAudio = " "
     sittingDate = " "
@@ -723,6 +794,8 @@ if __name__ == "__main__":
     segmentStart = " "
     segmentEnd = " "
     filePrefix = " "
+
+
 
     nano_seconds = 0
     converted_time = 0
