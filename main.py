@@ -5,64 +5,94 @@ from tkinter import *
 from tkinter import ttk #Secondary Tkinter Module which includes Progress Bar
 from threading import Thread #Module that allows Threading
 from ttkthemes import ThemedTk
-from PIL import Image, ImageTk
 from queue import Queue, Empty
 from subprocess import Popen, PIPE, run #Module that allows running OS Processes
 from functools import reduce
 import ffmpy
 from ffmpy import FFmpeg
-import pydub
-from pydub import AudioSegment
-from pydub.playback import play
 import tkcalendar as tkc
 import os
 import pickle
 import sys
 import time
+import datetime
 import subprocess
 import webbrowser
 import json
 
-
 from progressBar import progress_bar_percent #progress_bar_percent is the name of our load bar progress percentage on GUI
 from audioControls import play_beginning, play_end #these are the subprocess calls for ffplay to run playback
 
-class Production_Tools():
+class Splash(tk.Toplevel):
+    def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+        self.overrideredirect(1)
+        self.configure(bg='#625772')
+        self.splash_image = tk.PhotoImage(master=self, file=resource_path("gui_element_graphics\\splash_screen\\splashScreen.png"))
+        self.splash_canvas = Canvas(master=self, width=300, height=400, bd=0, bg='#625772', highlightthickness=0, relief='ridge')
+        self.splash_canvas.grid(row=0, column=0, sticky='nswe')
+        self.splash_canvas.grid_propagate(True)
+        self.splash_canvas.create_image(0, 0, anchor=NW, image=self.splash_image)
+        self.center_splash_screen()
+        self.update()
+
+    def center_splash_screen(self):
+        w = 300
+        h = 400
+        ws = root.winfo_screenwidth() # width of the screen
+        hs = root.winfo_screenheight() # height of the screen
+        x = (ws/2) - (w/2)
+        y = (hs/2) - (h/2)
+        self.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+class Production_Tools(tk.Tk):
     def __init__(self, main_window):
+        tk.Tk.__init__(self)
+        self.withdraw()
+        main_window.withdraw()
+        splash = Splash(self)
         self.main_window = main_window
-        self.main_window.title("Audio Production Tool Set")
+        self.main_window.title("tool.box")
         self.main_window.iconbitmap(resource_path("app_icon.ico"))
         self.main_window.maxsize(690,400)
         self.main_window.minsize(690,400)
         self.main_window.configure(bg='#625772')
+        self.main_window.update()
 
         self.tab_management()
-        self.file_page()
+        #self.file_page()
         self.audio_page()
         self.sidebar()
+        self.main_window.update()
 
         self.tab_creation = ttk.Notebook(self.tab_frame)
         self.tab_creation.add(self.audio_tool_page)
-        self.tab_creation.add(self.file_tool_page)
+        #self.tab_creation.add(self.file_tool_page)
         self.tab_creation.grid(row=0,column=0)
+        self.main_window.update()
 
         self.project_management_headers()
         self.project_management()
         self.current_project_headers()
         self.current_project_tools()
-        self.files_job_management()
-        self.project_file_management()
-        self.current_project_file_headers()
+        #self.files_job_management()
+        #self.project_file_management()
+        #self.current_project_file_headers()
         self.key_bindings()
         self.load_previous_projects_on_launch()
-        self.transcriptProductionConfig()
-
-
+        #self.transcriptProductionConfig()
+        self.main_window.update()
+        
         self.selected_tab = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\selected_tab.png"))
         self.selected_tab_icon = tk.Label(self.social_frame, image=self.selected_tab, width=6, height=40)
         self.selected_tab_icon.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         self.selected_tab_icon.grid(row=0, column=0, sticky=SW)
+        self.main_window.update()
 
+        time.sleep(6)
+        tk.Tk.destroy(self)
+        self.main_window.deiconify()
+        
     def tab_management(self):
         self.tab_frame = tk.Frame(self.main_window, bg='#625772')
         self.tab_frame.grid(row=0,column=0, padx=(35,0))
@@ -100,20 +130,49 @@ class Production_Tools():
         file_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.tab_nav_2)
         file_logo.grid(row=1, column=1, padx=10, pady=5, sticky=W)
 
-        self.twitter_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\twitter_logo.png"))
-        twitter_button = tk.Button(self.social_frame, image=self.twitter_logo, width=31, height=31, command=self.open_twitter)
-        twitter_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        twitter_button.grid(row=2, column=1, padx=10, pady=(190,0), sticky=SW)
-
-        self.github_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\github_logo.png"))
-        github_button = tk.Button(self.social_frame, image=self.github_logo, width=31, height=30, command=self.open_github)
-        github_button.configure(fg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        github_button.grid(row=3, column=1, padx=10, pady=(5,9), sticky=SW)
-
         self.help_logo = tk.PhotoImage(file=resource_path('gui_element_graphics\\sidebar\\help_logo.png'))
         help_button = tk.Button(self.social_frame, image=self.help_logo, width=31, height=31)
-        help_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
-        help_button.grid(row=4, column=1, padx=10, sticky=SW)
+        help_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.open_credits)
+        help_button.grid(row=4, column=1, padx=10, pady=(260,0), sticky=SW)
+
+    def open_credits(self):
+            credits_window = Toplevel(root)
+            credits_window.overrideredirect(1)
+
+            w = 300
+            h = 400
+            ws = root.winfo_screenwidth() # width of the screen
+            hs = root.winfo_screenheight() # height of the screen
+            x = (ws/2) - (w/2)
+            y = (hs/2) - (h/2)
+            credits_window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+            self.credits_window = credits_window
+            self.credits_window.configure(bg='#625772')
+            self.credits_image = tk.PhotoImage(file=resource_path("gui_element_graphics\\splash_screen\\splashScreen.png"))
+            self.credits_canvas = Canvas(self.credits_window, width=300, height=400, bd=0, bg='#625772', highlightthickness=0, relief='ridge')
+            self.credits_canvas.grid(row=0, column=0, sticky='nswe')
+            self.credits_canvas.grid_propagate(True)
+            self.credits_canvas.create_image(0, 15, anchor=NW, image=self.credits_image)
+
+            self.close_button = tk.PhotoImage(file=resource_path("gui_element_graphics\\splash_screen\\close.png"))
+            close_button = tk.Button(self.credits_window, image=self.close_button, relief=FLAT, bg='#625772', borderwidth=0, highlightthickness=0, command= lambda: credits_window.destroy())
+            self.credits_canvas.create_window(287, 5, anchor=NW, window=close_button)
+
+            versionNumber = self.credits_canvas.create_text(150,225,fill="#FFFFFF",font="Lato", text="version 4.0.1")
+            self.credits_canvas.tag_raise(versionNumber)
+
+            creditText = self.credits_canvas.create_text(150,250,fill="#FFFFFF",font="Lato", text="tool.box by James Allnutt")
+            self.credits_canvas.tag_raise(creditText)
+
+            helpButton = tk.Button(credits_window, command=lambda: self.open_help(),font="Lato", relief=FLAT, bg='#625772', fg="#FFFFFF", borderwidth=0, highlightthickness=0, text="Help Available Here.")
+            self.credits_canvas.create_window(75,265, anchor=NW, window=helpButton)
+
+            credits_window.mainloop()
+
+    def open_help(self, *event):    
+        webbrowser.open('https://opus2.freshdesk.com/')
+        self.credits_window.destroy()
 
 #Audio Management Tool
 
@@ -373,9 +432,20 @@ class Production_Tools():
 
         date_time = sittingDate + " " + segmentStart
         pattern = "%d/%m/%Y %H:%M:%S"
-        epoch_time = int(time.mktime(time.strptime(date_time, pattern)))
-        nano_seconds = (int(epoch_time)+11644473600)*10000000
-        converted_time = hex(nano_seconds)
+        getEpochTime = datetime.datetime.strptime(date_time, '%d/%m/%Y %H:%M:%S')
+        epochTimeWithSeconds = getEpochTime.timestamp()
+        savingsCheck = time.localtime(epochTimeWithSeconds).tm_isdst
+        if savingsCheck == 1:
+            epochTimeWithSeconds = epochTimeWithSeconds + 3600
+            epochInteger, epochIgnore = str(epochTimeWithSeconds).split(".")
+            convertTimeToWindowsMilli = (int(epochInteger)+11644473600)*10000000
+            converted_time = hex(convertTimeToWindowsMilli)
+            converted_time = "0" + str(converted_time[2:])
+        else:
+            epochInteger, epochIgnore = str(epochTimeWithSeconds).split(".")
+            convertTimeToWindowsMilli = (int(epochInteger)+11644473600)*10000000
+            converted_time = hex(convertTimeToWindowsMilli)
+            converted_time = "0" + str(converted_time[2:])
     
         self.start_time_calc = int(start_hour)*3600 + int(start_minute)*60 + int(start_second)
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
@@ -430,12 +500,6 @@ class Production_Tools():
         self.recording_start_bound.insert(0, "e.g. 10:03:00")
         self.recording_end_bound.insert(0, "e.g. 12:30:21")
         progress.config(value=0)
-
-    def open_twitter(self, *event):
-        webbrowser.open("https://twitter.com/JamesAllnutt94")
-
-    def open_github(self, *event):
-        webbrowser.open("https://github.com/jamesallnutt/Python-Audio-File-Splicer")
  
     def click_save_project(self, *event):
         global originalAudio
@@ -506,7 +570,9 @@ class Production_Tools():
     def load_previous_projects_on_launch(self, *event):
         global originalAudio, load_project_1
         save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
-
+        if not os.path.exists(save_path):
+            with open (save_path, "w"):
+                pass
         if os.path.getsize(save_path) > 0:
             with open(save_path, "rb") as file:
                 saved_content = pickle.Unpickler(file)
@@ -517,10 +583,6 @@ class Production_Tools():
                 past_2_project_title_entry.configure(text=load_project_1[4])
                 past_2_project_date_entry.configure(text=load_project_1[5])
                 past_2_project_recording_entry.configure(text=load_project_1[6])
-
-    def show_timecode_calculator(self, _class):
-        self.new = tk.Toplevel(self.main_window)
-        _class(self.new)
 
     def open_calculator(self):
         calculator_window = Toplevel(root)
@@ -601,14 +663,14 @@ class Production_Tools():
         if self.first_transcript_time_entry.get() == "":
             self.first_transcript_time_entry.insert(0, "e.g. 10:30:00")
 
-# File Management Tool
+#File Management Tool
 
     def files_job_management(self):
         self.save_file_management = tk.Frame(self.file_tool_page, bg='#F6F6F6', width=226, height=400)
         self.save_file_management.grid(row=0, column=0)
         self.save_file_management.grid_propagate(False)
 
-        file_header = tk.Label(self.save_file_management, text="Document Projects", bg='#F6F6F6', fg='#69686D', font=('Helvetica', 12, 'bold'))
+        file_header = tk.Label(self.save_file_management, text="Transcript Production", bg='#F6F6F6', fg='#69686D', font=('Helvetica', 12, 'bold'))
         file_header.grid(row=1, column=1, padx=(5,0), pady=(15), sticky=W)
 
     def project_file_management(self):
@@ -753,17 +815,19 @@ class Production_Tools():
         tPC_canvas.create_window(210, 150, anchor=NW, window=tPC_fullPageFormat)
         tPC_canvas.create_window(270, 150, anchor=NW, window=tPC_condensedPageFormat)
 
-        
-
-
-
-
 if __name__ == "__main__":
     root = tk.Tk()
+    w = 690
+    h = 400
+    ws = root.winfo_screenwidth() # width of the screen
+    hs = root.winfo_screenheight() # height of the screen
+    x = (ws/2) - (w/2)
+    y = (hs/2) - (h/2)
+    root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
     def resource_path(relative_path):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
-
     main_window = Production_Tools(root)
 
     maincolour = '#625772'
@@ -794,8 +858,6 @@ if __name__ == "__main__":
     segmentStart = " "
     segmentEnd = " "
     filePrefix = " "
-
-
 
     nano_seconds = 0
     converted_time = 0
