@@ -28,7 +28,7 @@ class Splash(tk.Toplevel):
         tk.Toplevel.__init__(self, parent)
         self.overrideredirect(1)
         self.configure(bg='#625772')
-        self.splash_image = tk.PhotoImage(master=self, file=resource_path("gui_element_graphics\\splash_screen\\splashScreen.png"))
+        self.splash_image = tk.PhotoImage(master=self, file=find_data_file("gui_element_graphics/splash_screen/splashScreenMain.png"))
         self.splash_canvas = Canvas(master=self, width=300, height=400, bd=0, bg='#625772', highlightthickness=0, relief='ridge')
         self.splash_canvas.grid(row=0, column=0, sticky='nswe')
         self.splash_canvas.grid_propagate(True)
@@ -53,21 +53,21 @@ class Production_Tools(tk.Tk):
         splash = Splash(self)
         self.main_window = main_window
         self.main_window.title("tool.box")
-        self.main_window.iconbitmap(resource_path("app_icon.ico"))
+        self.main_window.iconbitmap(find_data_file("app_icon.ico"))
         self.main_window.maxsize(690,400)
         self.main_window.minsize(690,400)
         self.main_window.configure(bg='#625772')
         self.main_window.update()
 
         self.tab_management()
-        #self.file_page()
+        self.file_page()
         self.audio_page()
         self.sidebar()
         self.main_window.update()
 
         self.tab_creation = ttk.Notebook(self.tab_frame)
         self.tab_creation.add(self.audio_tool_page)
-        #self.tab_creation.add(self.file_tool_page)
+        self.tab_creation.add(self.file_tool_page)
         self.tab_creation.grid(row=0,column=0)
         self.main_window.update()
 
@@ -75,15 +75,15 @@ class Production_Tools(tk.Tk):
         self.project_management()
         self.current_project_headers()
         self.current_project_tools()
-        #self.files_job_management()
-        #self.project_file_management()
-        #self.current_project_file_headers()
+        self.files_job_management()
+        self.project_file_management()
+        self.current_project_file_headers()
         self.key_bindings()
         self.load_previous_projects_on_launch()
-        #self.transcriptProductionConfig()
+        self.transcriptProductionConfig()
         self.main_window.update()
         
-        self.selected_tab = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\selected_tab.png"))
+        self.selected_tab = tk.PhotoImage(file=find_data_file("gui_element_graphics/sidebar/selected_tab.png"))
         self.selected_tab_icon = tk.Label(self.social_frame, image=self.selected_tab, width=6, height=40)
         self.selected_tab_icon.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         self.selected_tab_icon.grid(row=0, column=0, sticky=SW)
@@ -120,17 +120,17 @@ class Production_Tools(tk.Tk):
         self.social_frame.grid(row=0, column=0, sticky=NW)
         self.social_frame.grid_propagate(False)
 
-        self.audio_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\icon_audio.png"))
+        self.audio_logo = tk.PhotoImage(file=find_data_file("gui_element_graphics/sidebar/icon_audio.png"))
         audio_logo = tk.Button(self.social_frame, image=self.audio_logo, width=30, height=40)
         audio_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.tab_nav_1)
         audio_logo.grid(row=0, column=1, padx=10, pady=5, sticky=W)
         
-        self.file_logo = tk.PhotoImage(file=resource_path("gui_element_graphics\\sidebar\\icon_file.png"))
+        self.file_logo = tk.PhotoImage(file=find_data_file("gui_element_graphics/sidebar/icon_file.png"))
         file_logo = tk.Button(self.social_frame, image=self.file_logo, width=30, height=40)
         file_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.tab_nav_2)
         file_logo.grid(row=1, column=1, padx=10, pady=5, sticky=W)
 
-        self.help_logo = tk.PhotoImage(file=resource_path('gui_element_graphics\\sidebar\\help_logo.png'))
+        self.help_logo = tk.PhotoImage(file=find_data_file("gui_element_graphics/sidebar/help_logo.png"))
         help_button = tk.Button(self.social_frame, image=self.help_logo, width=31, height=31)
         help_button.configure(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.open_credits)
         help_button.grid(row=4, column=1, padx=10, pady=(260,0), sticky=SW)
@@ -149,13 +149,13 @@ class Production_Tools(tk.Tk):
 
             self.credits_window = credits_window
             self.credits_window.configure(bg='#625772')
-            self.credits_image = tk.PhotoImage(file=resource_path("gui_element_graphics\\splash_screen\\splashScreen.png"))
+            self.credits_image = tk.PhotoImage(file=find_data_file("gui_element_graphics/splash_screen/splashScreen.png"))
             self.credits_canvas = Canvas(self.credits_window, width=300, height=400, bd=0, bg='#625772', highlightthickness=0, relief='ridge')
             self.credits_canvas.grid(row=0, column=0, sticky='nswe')
             self.credits_canvas.grid_propagate(True)
             self.credits_canvas.create_image(0, 15, anchor=NW, image=self.credits_image)
 
-            self.close_button = tk.PhotoImage(file=resource_path("gui_element_graphics\\splash_screen\\close.png"))
+            self.close_button = tk.PhotoImage(file=find_data_file("gui_element_graphics/splash_screen/close.png"))
             close_button = tk.Button(self.credits_window, image=self.close_button, relief=FLAT, bg='#625772', borderwidth=0, highlightthickness=0, command= lambda: credits_window.destroy())
             self.credits_canvas.create_window(287, 5, anchor=NW, window=close_button)
 
@@ -168,10 +168,13 @@ class Production_Tools(tk.Tk):
             helpButton = tk.Button(credits_window, command=lambda: self.open_help(),font="Lato", relief=FLAT, bg='#625772', fg="#FFFFFF", borderwidth=0, highlightthickness=0, text="Help Available Here.")
             self.credits_canvas.create_window(75,265, anchor=NW, window=helpButton)
 
+            copyright = self.credits_canvas.create_text(150, 305, fill="#FFFFFF",font="Lato", text="James Allnutt © 2020")
+            self.credits_canvas.tag_raise(copyright)
+
             credits_window.mainloop()
 
     def open_help(self, *event):    
-        webbrowser.open('https://opus2.freshdesk.com/')
+        webbrowser.open('https://opus2.freshdesk.com/support/solutions/articles/43000590588-what-is-tool-box-')
         self.credits_window.destroy()
 
 #Audio Management Tool
@@ -191,7 +194,7 @@ class Production_Tools(tk.Tk):
         self.project_info.grid(row=4, column=1, columnspan=2, rowspan=1)
         self.project_info.grid_propagate(True)
 
-        self.current_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\pink_header.png'))
+        self.current_header_bg = tk.PhotoImage(file=find_data_file("gui_element_graphics/project_headers/pink_header.png"))
         self.current_header_bg = self.current_header_bg.subsample(5,4)
         current_project_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
         current_project_header_canvas = Canvas(self.project_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
@@ -206,11 +209,11 @@ class Production_Tools(tk.Tk):
         current_project_date_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
         current_project_recording_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
 
-        self.plus_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\add_new.png'))
+        self.plus_button = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/add_new.png"))
         save_button = tk.Button(self.save_management, image=self.plus_button, command=self.click_save_project)
         save_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
 
-        self.project_background = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\save_panels.png'))
+        self.project_background = tk.PhotoImage(file=find_data_file("gui_element_graphics/panels/save_panels.png"))
         current_project_canvas = Canvas(self.project_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
         current_project_canvas.grid(row=1, column=0, sticky=NSEW)
         current_project_canvas.create_image(5, 0, anchor=NW, image=self.project_background)
@@ -222,7 +225,7 @@ class Production_Tools(tk.Tk):
         current_project_canvas.create_window(100, 55, anchor=NW, window=current_project_recording_entry)
         current_project_canvas.create_window(200, 0, anchor=NW, window=save_button)
 
-        self.past_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\purple_header.png'))
+        self.past_header_bg = tk.PhotoImage(file=find_data_file("gui_element_graphics/project_headers/purple_header.png"))
         self.past_header_bg = self.past_header_bg.subsample(5,4)
         past_project_header = tk.Label(text="Last Edits", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
         past_project_header_canvas = Canvas(self.project_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
@@ -283,7 +286,7 @@ class Production_Tools(tk.Tk):
         browse = tk.Label(text="Browse", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
         editing_header = tk.Label(text="Export Options", bg='#FFFFFF', fg='#69686D', font=('Helvetica', 12, 'bold'))
 
-        self.tools_canvas_image = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\project_tools.png'))
+        self.tools_canvas_image = tk.PhotoImage(file=find_data_file("gui_element_graphics/panels/project_tools.png"))
 
         tools_canvas = Canvas(self.current_audio_project, bg='#F6F6F6', bd=0, highlightthickness=0, height=340)
         tools_canvas.grid(row=1, column=1, columnspan=2, sticky=NSEW, pady=(10,0))
@@ -298,7 +301,7 @@ class Production_Tools(tk.Tk):
 
         self.current_fp_background = tk.Label(bg='#F6F6F6', width=35)
         self.current_file_path = tk.Label(text="Click To Add Audio", bg='#FFFFFF', fg='#69686D', borderwidth=1, width=35)
-        self.current_file_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\add_new.png'))
+        self.current_file_button = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/add_new.png"))
         current_file_button = tk.Button(image=self.current_file_button, width=17, command=self.click_browse, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
   
         recordingDateLabel = tk.Label(self.current_audio_project, text="Sitting Date", bg='#FFFFFF', fg='#69686D')
@@ -313,24 +316,24 @@ class Production_Tools(tk.Tk):
         self.recording_start_bound = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_start_bound.insert(0, "e.g. 10:03:00")
 
-        self.play_start = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\play.png'))
+        self.play_start = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/play.png"))
         recording_start_bound_play = tk.Button(self.current_audio_project, image=self.play_start, height=15, width=17, command=self.click_play_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
         audioChunkEndTime = tk.Label(self.current_audio_project, text="End Boundary", bg='#FFFFFF', fg='#69686D')
         self.recording_end_bound = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_end_bound.insert(0, "e.g. 12:30:21")
 
-        self.play_end = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\play.png'))
+        self.play_end = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/play.png"))
         recording_end_bound_play = tk.Button(self.current_audio_project, image=self.play_end, height=15, width=17, command=self.click_play_end, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
         audioFileNamePrefix = tk.Label(self.current_audio_project, text="Filename Prefix", bg='#FFFFFF', fg='#69686D')
         self.recording_file_prefix = tk.Entry(self.current_audio_project, bg='#FFFFFF', fg='#69686D', relief="flat", highlightthickness=1)
         self.recording_file_prefix.insert(0, "e.g. EventName")
 
-        self.export_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\export.png'))
+        self.export_button = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/export.png"))
         export = tk.Button(self.current_audio_project, image=self.export_button, command=self.click_save, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
-        self.reset_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\reset.png'))
+        self.reset_button = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/reset.png"))
         reset = tk.Button(self.current_audio_project, image=self.reset_button, command=self.click_reset, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
 
         tools_canvas.create_window(26, 74, anchor=NW, window=self.current_fp_background)
@@ -475,7 +478,7 @@ class Production_Tools(tk.Tk):
         self.start_segment_time_calc = int(start_seg_hour)*3600 + int(start_seg_minute)*60 + int(start_seg_second)
 
         actual_start_segment = float(self.start_segment_time_calc) - float(self.start_time_calc)
-        ffplay_path = resource_path("tools\\ffplay.exe")
+        ffplay_path = find_data_file("tools/ffplay.exe")
         command_play = [ffplay_path, originalAudio, "-ss", str(actual_start_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_beginning(command_play)).start()
 
@@ -490,7 +493,7 @@ class Production_Tools(tk.Tk):
 
         end_segment = float(self.end_time_calc) - float(self.start_time_calc)
         actual_end_segment = float(end_segment) - 10 #taking away 10 seconds from end segment
-        ffplay_path = resource_path("tools\\ffplay.exe")
+        ffplay_path = find_data_file("tools/ffplay.exe")
         command_play = [ffplay_path, originalAudio, "-ss", str(actual_end_segment), "-t", "10", "-nodisp", "-autoexit"]
         Thread(target=lambda: play_end(command_play)).start()
 
@@ -512,7 +515,7 @@ class Production_Tools(tk.Tk):
         current_project_date_entry.configure(text=sittingDate)
         current_project_recording_entry.configure(text=startTime)
         
-        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
+        save_path = find_data_file("save_file\ProductionAudioManagement.dat")
         save_file = [filePrefix, sittingDate, startTime, originalAudio]
 
         if os.path.getsize(save_path) > 0:
@@ -533,7 +536,7 @@ class Production_Tools(tk.Tk):
 
     def click_previous_project_1(self, *event):
         global originalAudio, fileDisplay
-        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
+        save_path = find_data_file("save_file\ProductionAudioManagement.dat")
         with open(save_path, "rb") as file:
             saved_content = pickle.Unpickler(file)
             load_project_1 = saved_content.load()
@@ -551,7 +554,7 @@ class Production_Tools(tk.Tk):
 
     def click_previous_project_2(self, *event):
         global originalAudio, fileDisplay
-        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
+        save_path = find_data_file("save_file\ProductionAudioManagement.dat")
         with open(save_path, "rb") as file:
             saved_content = pickle.Unpickler(file)
             load_project_1 = saved_content.load()
@@ -569,7 +572,7 @@ class Production_Tools(tk.Tk):
 
     def load_previous_projects_on_launch(self, *event):
         global originalAudio, load_project_1
-        save_path = os.path.join(os.path.expandvars("%userprofile%"),"Documents","ProductionAudioManagement.dat")
+        save_path = find_data_file("save_file\ProductionAudioManagement.dat")
         if not os.path.exists(save_path):
             with open (save_path, "w"):
                 pass
@@ -588,7 +591,7 @@ class Production_Tools(tk.Tk):
         calculator_window = Toplevel(root)
         self.calculator_window = calculator_window
         self.calculator_window.title("Timestamp Calculator")
-        self.calculator_window.iconbitmap(resource_path("app_icon.ico"))
+        self.calculator_window.iconbitmap(find_data_file("app_icon.ico"))
         self.calculator_window.configure(bg='#FFFFFF')
 
         tutorial = tk.Text(self.calculator_window, height=7, bg='#FFFFFF', highlightthickness=0, bd=0)
@@ -622,7 +625,7 @@ class Production_Tools(tk.Tk):
 
         convert_canvas = Canvas(self.calculator_window, bg='#FFFFFF', bd=0, highlightthickness=0, height=70)
         convert_canvas.grid(row=2, column=1, columnspan=4, sticky=NSEW, pady=(5))
-        self.convert_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\Convert.png'))
+        self.convert_button = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/Convert.png"))
         convert_button = tk.Button(self.calculator_window, image=self.convert_button, command=self.calculator_start, relief=FLAT, bg='#FFFFFF', borderwidth=0, highlightthickness=0)
         convert_canvas.create_window(275, 0, anchor=NW, window=convert_button)
 
@@ -680,7 +683,7 @@ class Production_Tools(tk.Tk):
         self.project_file_info.grid(row=4, column=1, columnspan=2, rowspan=1)
         self.project_file_info.grid_propagate(True)
 
-        self.current_file_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\pink_header.png'))
+        self.current_file_header_bg = tk.PhotoImage(file=find_data_file("gui_element_graphics/project_headers/pink_header.png"))
         self.current_file_header_bg = self.current_file_header_bg.subsample(5,4)
         current_project_file_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
         current_project_file_header_canvas = Canvas(self.project_file_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
@@ -695,11 +698,11 @@ class Production_Tools(tk.Tk):
         current_project_file_date_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
         current_project_file_recording_entry = tk.Label(text="N/A", fg='#69686D', bg='#FFFFFF')
 
-        self.plus_file_button = tk.PhotoImage(file=resource_path('gui_element_graphics\\buttons\\add_new.png'))
+        self.plus_file_button = tk.PhotoImage(file=find_data_file("gui_element_graphics/buttons/add_new.png"))
         file_save_button = tk.Button(self.save_file_management, image=self.plus_file_button)
         file_save_button.configure(bg='#F6F6F6', fg='#F6F6F6', height=18, width=16, borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
 
-        self.file_project_background = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\save_panels.png'))
+        self.file_project_background = tk.PhotoImage(file=find_data_file("gui_element_graphics/panels/save_panels.png"))
         current_project_file_canvas = Canvas(self.project_file_info, bg='#F6F6F6', height=100, bd=0, highlightthickness=0)
         current_project_file_canvas.grid(row=1, column=0, sticky=NSEW)
         current_project_file_canvas.create_image(5, 0, anchor=NW, image=self.file_project_background)
@@ -711,7 +714,7 @@ class Production_Tools(tk.Tk):
         current_project_file_canvas.create_window(100, 55, anchor=NW, window=current_project_file_recording_entry)
         current_project_file_canvas.create_window(200, 0, anchor=NW, window=file_save_button)
 
-        self.file_past_header_bg = tk.PhotoImage(file=resource_path('gui_element_graphics\\project_headers\\purple_header.png'))
+        self.file_past_header_bg = tk.PhotoImage(file=find_data_file("gui_element_graphics/project_headers/purple_header.png"))
         self.file_past_header_bg = self.file_past_header_bg.subsample(5,4)
         past_file_project_header = tk.Label(text="Last Edits", bg='#A9BCEE', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
         past_file_project_header_canvas = Canvas(self.project_file_info, height=25, bg='#F6F6F6', bd=0, highlightthickness=0)
@@ -770,7 +773,7 @@ class Production_Tools(tk.Tk):
 
         project_file_header = tk.Label(text="Current", bg='#F9A1BC', fg='#FFFFFF', font=('Helvetica', 9, 'bold'))
 
-        self.tPC_canvas_image = tk.PhotoImage(file=resource_path('gui_element_graphics\\panels\\files_background.png'))
+        self.tPC_canvas_image = tk.PhotoImage(file=find_data_file("gui_element_graphics/panels/files_background.png"))
 
         tPC_canvas = Canvas(self.current_file_project, bg='#F6F6F6', bd=0, highlightthickness=0, height=390)
         tPC_canvas.grid(row=1, column=1, columnspan=2, sticky=NSEW, pady=(10,0))
@@ -825,9 +828,16 @@ if __name__ == "__main__":
     y = (hs/2) - (h/2)
     root.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
-    def resource_path(relative_path):
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
+    def find_data_file(filename):
+        if getattr(sys, 'frozen', False):
+            # The application is frozen
+            datadir = os.path.dirname(sys.executable)
+        else:
+            # The application is not frozen
+            datadir = os.path.dirname(__file__)
+        return os.path.join(datadir, filename)
+
+    
     main_window = Production_Tools(root)
 
     maincolour = '#625772'
@@ -838,18 +848,8 @@ if __name__ == "__main__":
     style = ttk.Style(root)
     # Import the Notebook.tab element from the default theme
     style.element_create('Plain.Notebook.tab', "from", 'default')
-    # Redefine the TNotebook Tab layout to use the new element
-    #style.layout("TNotebook.Tab",
-     #   [('Plain.Notebook.tab', {'children':
-      #      [('Notebook.padding', {'side': 'top', 'children':
-       #         [('Notebook.focus', {'side': 'top', 'children':
-        #            [('Notebook.label', {'side': 'top', 'sticky': ''})],
-         #       'sticky': 'nswe'})],
-          #  'sticky': 'nswe'})],
-        # 'sticky': 'nswe'})])
     style.layout("TNotebook.Tab", [])
     style.configure("TNotebook",tabposition='wn',background=maincolour,tabmargins=(0, 0, 0, 0),borderwidth=0, bordercolour=maincolour)
-    #style.configure("TNotebook.Tab",[]) background=maincolour, padding=(0,10), sticky='e')
     style.map("TNotebook.Tab", background=[('selected',highlightcolour)])
 
     originalAudio = " "

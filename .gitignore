@@ -2,3 +2,9 @@ __pycache__/
 .vscode
 ffmpeg/*
 test_save.py
+build/*
+test.pdf
+test.js
+transcriptProduction/transcriptFormattingFullPage.html
+transcriptProduction/transcriptFormattingCondensed.html
+html_to_pdf.py

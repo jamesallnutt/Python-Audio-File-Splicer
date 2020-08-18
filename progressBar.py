@@ -4,6 +4,7 @@
 
 import subprocess
 from functools import reduce
+from subprocess import CREATE_NO_WINDOW
 
 def extract_raw_timecode(chunk):
     return chunk[chunk.index(b'time='):chunk.index(b' bitrate')]
@@ -22,9 +23,7 @@ def to_seconds(timecode):
 def on_new_log(new_progress, target_file_length, on_percentage_callback_func):
     timecode = extract_raw_timecode(new_progress)
     seconds = to_seconds(timecode)
-    # print(seconds, target_file_length)
     on_percentage_callback_func(seconds / target_file_length)
-    # print((str(seconds / target_file_length * 100))[:5] + '%')
 
 def skip_prefix(p):
     prefix = b''
@@ -69,7 +68,7 @@ def get_duration(file_path):
 
 
 def progress_bar_percent(command, result_file_duration, percentage_callback_function):
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, creationflags=CREATE_NO_WINDOW)
     # Skip all the output before the progress log
     leftover = skip_prefix(p)
     # Read progress log
