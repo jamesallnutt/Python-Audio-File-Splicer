@@ -23,7 +23,7 @@ build_msi_options = {
 }
 
 setup(name='tool.box',
-    version='4.0.1',
+    version='4.0.2',
     author='James Allnutt',
     options={
         'build_exe': build_exe_options,
@@ -34,7 +34,7 @@ setup(name='tool.box',
         Executable(
             "main.py",
             copyright="Copyright (C) James Allnutt 2020",
-            icon="C:\\Users\\jallnutt\\OneDrive - Opus 2\\Documents\\GitHub\\Local Server Requests\\Python-Audio-File-Splicer\\app_icon.ico",
+            icon="app_icon.ico",
             shortcutName="tool.box",
             shortcutDir="DesktopFolder",
             base=base

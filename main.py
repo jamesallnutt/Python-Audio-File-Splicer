@@ -75,12 +75,12 @@ class Production_Tools(tk.Tk):
         self.project_management()
         self.current_project_headers()
         self.current_project_tools()
-        self.files_job_management()
-        self.project_file_management()
-        self.current_project_file_headers()
+        #self.files_job_management()
+        #self.project_file_management()
+        #self.current_project_file_headers()
         self.key_bindings()
         self.load_previous_projects_on_launch()
-        self.transcriptProductionConfig()
+        #self.transcriptProductionConfig()
         self.main_window.update()
         
         self.selected_tab = tk.PhotoImage(file=find_data_file("gui_element_graphics/sidebar/selected_tab.png"))
@@ -127,7 +127,7 @@ class Production_Tools(tk.Tk):
         
         self.file_logo = tk.PhotoImage(file=find_data_file("gui_element_graphics/sidebar/icon_file.png"))
         file_logo = tk.Button(self.social_frame, image=self.file_logo, width=30, height=40)
-        file_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT, command=self.tab_nav_2)
+        file_logo.config(bg='#625772', borderwidth=0, highlightthickness=0, bd=0, relief=FLAT)
         file_logo.grid(row=1, column=1, padx=10, pady=5, sticky=W)
 
         self.help_logo = tk.PhotoImage(file=find_data_file("gui_element_graphics/sidebar/help_logo.png"))
@@ -159,7 +159,7 @@ class Production_Tools(tk.Tk):
             close_button = tk.Button(self.credits_window, image=self.close_button, relief=FLAT, bg='#625772', borderwidth=0, highlightthickness=0, command= lambda: credits_window.destroy())
             self.credits_canvas.create_window(287, 5, anchor=NW, window=close_button)
 
-            versionNumber = self.credits_canvas.create_text(150,225,fill="#FFFFFF",font="Lato", text="version 4.0.1")
+            versionNumber = self.credits_canvas.create_text(150,225,fill="#FFFFFF",font="Lato", text="version 4.0.2")
             self.credits_canvas.tag_raise(versionNumber)
 
             creditText = self.credits_canvas.create_text(150,250,fill="#FFFFFF",font="Lato", text="tool.box by James Allnutt")
@@ -460,11 +460,7 @@ class Production_Tools(tk.Tk):
 
         self.savelocation = filedialog.askdirectory(title = "Save Location")
         new_filename = self.savelocation + "/" + str(filePrefix) + "_" + str(sitting_year) + str(sitting_month) + str(sitting_day) + "-" + str(epoch_time_hour) + str(epoch_time_minute) + "_" + str(converted_time) + ".wma"
-        ffmpeg_command = FFmpeg(
-            inputs={originalAudio: None},
-            outputs={new_filename: ['-ss', str(actual_start_segment), '-to', str(actual_end_segment), '-async', '1', '-strict', '-2', '-ar', '44100', '-ab', '56k', '-ac', '1', '-y']}
-        )
-        command = ffmpeg_command.cmd
+        command = [find_data_file("tools/ffmpeg.exe"), "-i", originalAudio, "-ss", str(actual_start_segment), "-to", str(actual_end_segment), "-async", "1", "-strict", "-2", "-ar", "44100", "-ab", "56k", "-ac", "1", "-y", new_filename]
         Thread(target=lambda: progress_bar_percent(command, target_file_duration, lambda x: progress.config(value=x*100))).start()
 
     def click_play_start(self, *event):
